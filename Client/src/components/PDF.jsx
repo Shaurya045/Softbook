@@ -59,10 +59,11 @@ function PDF({ data, image }) {
   };
 
   return (
-    <div className=" flex flex-col w-[80%]">
+    <div className=" flex flex-col w-full justify-center items-center">
+      <p className="text-red-600 font-bold md:text-3xl lg:hidden block sm:text-2xl text-base">Cannot Print PDF in Mobile View</p>
       <div
         ref={printRef}
-        className="bg-white px-[40px] rounded-[10px] flex flex-col items-center gap-[25px] pt-[20px] pb-[50px] shadow-lg print:shadow-none "
+        className="bg-white px-[40px] max-w-[900px] min-w-[900px] rounded-[10px] hidden lg:flex flex-col items-center gap-[25px] pt-[20px] pb-[50px] shadow-lg print:shadow-none "
       >
         {/* header */}
         <div>
@@ -109,7 +110,7 @@ function PDF({ data, image }) {
             <div className="flex flex-col gap-[10px] bg-[#539486]/5 p-4 rounded-lg w-full">
               <div className="flex gap-[10px] items-center ">
                 <p className="text-md font-medium text-[#539486]">
-                  Student Name :{" "}
+                  Student's Name :{" "}
                 </p>
                 <p className="text-lg font-normal">{data.studentName}</p>
               </div>
@@ -264,7 +265,7 @@ function PDF({ data, image }) {
         </div>
       </div>
 
-      <div className="mt-[30px] flex items-center justify-center gap-[20px]">
+      <div className="mt-[30px] flex flex-col sm:flex-row items-center justify-center gap-[20px]">
         <button
           onClick={handleDownloadPDF}
           className=" w-[150px] bg-white text-[#539486] p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 "
@@ -281,7 +282,9 @@ function PDF({ data, image }) {
             <div className=" w-[30px] h-[30px] bg-green-400 rounded-[50%] flex flex-row justify-center items-center text-[45px] text-white ">
               <FaWhatsapp />
             </div>
-            <p className="text-[18px] font-semibold text-[#539486] ">Send on Whatsapp</p>
+            <p className="text-[18px] font-semibold text-[#539486] ">
+              Send on Whatsapp
+            </p>
           </div>
         </a>
       </div>

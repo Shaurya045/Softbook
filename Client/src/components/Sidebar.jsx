@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { images } from "../assets/assets";
+import { RiDashboardFill } from "react-icons/ri";
 
 function Sidebar() {
   return (
@@ -15,6 +16,7 @@ function Sidebar() {
           }
         >
           {/* <img src={assets.add_icon} alt="add_icon" /> */}
+          <RiDashboardFill size={20} />
           <p className="max-[900px]:hidden">Dashboard</p>
         </NavLink>
         <NavLink
