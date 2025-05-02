@@ -210,7 +210,7 @@ function NewAdmission() {
                   type="file"
                   id="image"
                   hidden
-                  required
+                  // required
                 />
               </div>
 

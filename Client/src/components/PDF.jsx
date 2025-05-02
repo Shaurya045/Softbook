@@ -60,7 +60,9 @@ function PDF({ data, image }) {
 
   return (
     <div className=" flex flex-col w-full justify-center items-center">
-      <p className="text-red-600 font-bold md:text-3xl lg:hidden block sm:text-2xl text-base">Cannot Print PDF in Mobile View</p>
+      <p className="text-red-600 font-bold md:text-3xl lg:hidden block sm:text-2xl text-base">
+        Cannot Print PDF in Mobile View
+      </p>
       <div
         ref={printRef}
         className="bg-white px-[40px] max-w-[900px] min-w-[900px] rounded-[10px] hidden lg:flex flex-col items-center gap-[25px] pt-[20px] pb-[50px] shadow-lg print:shadow-none "
@@ -143,20 +145,22 @@ function PDF({ data, image }) {
                 <p className="text-lg font-normal">{data.idProof}</p>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="relative w-32 h-40 bg-[#539486]/10 rounded-lg overflow-hidden border-2 border-[#539486] mb-2">
-                {image && (
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt="Student Photo"
-                    className="w-full h-full object-cover"
-                  />
-                )}
+            {image && (
+              <div className="flex flex-col items-center">
+                <div className="relative w-32 h-40 bg-[#539486]/10 rounded-lg overflow-hidden border-2 border-[#539486] mb-2">
+                  {image && (
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt="Student Photo"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <span className="text-xs text-[#539486] font-medium">
+                  Student Photo
+                </span>
               </div>
-              <span className="text-xs text-[#539486] font-medium">
-                Student Photo
-              </span>
-            </div>
+            )}
           </div>
           <div className="flex gap-[10px] items-center bg-[#539486]/5 p-4 rounded-lg ">
             <p className="text-md font-medium text-[#539486]">
