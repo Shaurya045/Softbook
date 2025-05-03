@@ -3,8 +3,9 @@ import { images } from "../assets/assets";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { FaWhatsapp } from "react-icons/fa6";
+import { IoArrowBack } from "react-icons/io5";
 
-function PDF({ data, image }) {
+function PDF({ data, image, setShowPDF }) {
   const studentName = data.studentName;
   const phone = 91 + data.phone;
   const today = new Date();
@@ -23,6 +24,18 @@ function PDF({ data, image }) {
     2,
     "0"
   )}/${dueDate.getFullYear()}`;
+
+  // Format the due date from props if it exists
+  const formatDueDate = (dateString) => {
+    if (!dateString) return dueDateFormatted;
+
+    const date = new Date(dateString);
+    return `${String(date.getDate()).padStart(2, "0")}/${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}/${date.getFullYear()}`;
+  };
+
+  const finalDueDate = formatDueDate(data.dueDate);
 
   //   reference of what to print
   const printRef = useRef(null);
@@ -63,6 +76,15 @@ function PDF({ data, image }) {
       <p className="text-red-600 font-bold md:text-3xl lg:hidden block sm:text-2xl text-base">
         Cannot Print PDF in Mobile View
       </p>
+      <div className="flex w-[150px] bg-[#539486] text-white p-[10px] rounded-[10px] mb-[30px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 self-start ml-[30px] shadow-[#539486] shadow-lg ">
+        <IoArrowBack size={16} />
+        <button
+          onClick={() => setShowPDF(false)}
+          className="  text-[16px] font-semibold "
+        >
+          Back to Form
+        </button>
+      </div>
       <div
         ref={printRef}
         className="bg-white px-[40px] max-w-[900px] min-w-[900px] rounded-[10px] hidden lg:flex flex-col items-center gap-[25px] pt-[20px] pb-[50px] shadow-lg print:shadow-none "
@@ -177,7 +199,7 @@ function PDF({ data, image }) {
           <div className="flex gap-[40px] w-full">
             <div className="bg-[#539486]/10 p-4 rounded-lg border-l-4 border-[#539486] flex gap-[10px] items-center ">
               <p className="text-md font-medium text-[#539486]">Due Date : </p>
-              <p className="text-lg font-bold">{dueDateFormatted}</p>
+              <p className="text-lg font-bold">{finalDueDate}</p>
             </div>
             <div className="bg-[#539486]/10 p-4 rounded-lg border-l-4 border-[#539486] flex gap-[10px] items-center ">
               <p className="text-md font-medium text-[#539486]">Amount : </p>
@@ -272,7 +294,7 @@ function PDF({ data, image }) {
       <div className="mt-[30px] flex flex-col sm:flex-row items-center justify-center gap-[20px]">
         <button
           onClick={handleDownloadPDF}
-          className=" w-[150px] bg-white text-[#539486] p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 "
+          className=" w-[150px] bg-[#539486] text-white p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 shadow-[#539486] shadow-lg "
         >
           Print PDF
         </button>
@@ -282,13 +304,11 @@ function PDF({ data, image }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <div className="flex bg-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.1] transition duration-300 ">
+          <div className="flex bg-[#539486] text-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.1] transition duration-300 shadow-[#539486] shadow-lg ">
             <div className=" w-[30px] h-[30px] bg-green-400 rounded-[50%] flex flex-row justify-center items-center text-[45px] text-white ">
               <FaWhatsapp />
             </div>
-            <p className="text-[18px] font-semibold text-[#539486] ">
-              Send on Whatsapp
-            </p>
+            <p className="text-[18px] font-semibold ">Send on Whatsapp</p>
           </div>
         </a>
       </div>

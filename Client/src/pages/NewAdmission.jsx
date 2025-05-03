@@ -15,7 +15,7 @@ function NewAdmission() {
     phone: "",
     amount: "",
     idProof: "Aadhar Card",
-    // dueDate: "",
+    dueDate: "",
   });
 
   const onChangeHandler = (e) => {
@@ -32,7 +32,7 @@ function NewAdmission() {
   return (
     <>
       {showPDf ? (
-        <PDF data={data} image={image} />
+        <PDF data={data} image={image} setShowPDF={setShowPDF} />
       ) : (
         <div className="flex flex-col w-full justify-center items-center">
           <div className="bg-white w-[80%] px-[15px] sm:px-[40px] rounded-[10px] flex flex-col gap-[35px] py-[40px] shadow-lg ">
@@ -191,6 +191,17 @@ function NewAdmission() {
                     <option value="Voter ID">Voter ID</option>
                     <option value="Driving Licence">Driving Licence</option>
                   </select>
+                </div>
+                <div className="flex flex-col gap-1 w-full">
+                  <p className="text-[16px] font-semibold pl-[3px] ">Due Date</p>
+                  <input
+                    value={data.dueDate}
+                    onChange={onChangeHandler}
+                    name="dueDate"
+                    className="outline-none p-2 border-2 border-gray-300 rounded-[10px]"
+                    type="date"
+                    // required
+                  />
                 </div>
               </div>
 
