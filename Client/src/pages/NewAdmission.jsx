@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { images } from "../assets/assets";
 import PDF from "../components/PDF";
+import PDF2 from "../components/PDF2";
+// import { PDF2 } from "../components/PDF2";
 
 function NewAdmission() {
   const [showPDf, setShowPDF] = useState(false);
@@ -32,7 +34,7 @@ function NewAdmission() {
   return (
     <>
       {showPDf ? (
-        <PDF data={data} image={image} setShowPDF={setShowPDF} />
+        <PDF2 data={data} image={image} setShowPDF={setShowPDF} />
       ) : (
         <div className="flex flex-col w-full justify-center items-center">
           <div className="bg-white w-[80%] px-[15px] sm:px-[40px] rounded-[10px] flex flex-col gap-[35px] py-[40px] shadow-lg ">
@@ -193,7 +195,9 @@ function NewAdmission() {
                   </select>
                 </div>
                 <div className="flex flex-col gap-1 w-full">
-                  <p className="text-[16px] font-semibold pl-[3px] ">Due Date</p>
+                  <p className="text-[16px] font-semibold pl-[3px] ">
+                    Due Date
+                  </p>
                   <input
                     value={data.dueDate}
                     onChange={onChangeHandler}
