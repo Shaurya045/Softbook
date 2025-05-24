@@ -383,7 +383,7 @@ const MyDocument = ({ data, image }) => {
                     style={{
                       width: "100%",
                       height: "100%",
-                      borderRadius: 8,
+                      borderRadius: 5,
                       objectFit: "cover",
                     }}
                   />

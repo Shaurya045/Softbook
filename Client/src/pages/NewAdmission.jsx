@@ -37,7 +37,7 @@ function NewAdmission() {
         <PDF2 data={data} image={image} setShowPDF={setShowPDF} />
       ) : (
         <div className="flex flex-col w-full justify-center items-center">
-          <div className="bg-white w-[80%] px-[15px] sm:px-[40px] rounded-[10px] flex flex-col gap-[35px] py-[40px] shadow-lg ">
+          <div className="bg-white w-[86%] sm:w-[80%] px-[15px] sm:px-[40px] rounded-[10px] flex flex-col gap-[35px] py-[40px] shadow-lg ">
             <h1 className="text-center text-2xl font-semibold  ">
               Fill the Form With the New Admission
             </h1>
@@ -176,7 +176,7 @@ function NewAdmission() {
                 </div>
               </div>
 
-              <div className="flex gap-[40px]">
+              <div className="flex flex-col lg:flex-row gap-[40px]">
                 <div className="flex flex-col gap-1 w-full">
                   <p className="text-[16px] font-semibold pl-[3px] ">
                     ID Proof
