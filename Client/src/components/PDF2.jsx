@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Page,
   Text,
@@ -12,6 +12,7 @@ import {
 import { images } from "../assets/assets";
 import { FaWhatsapp } from "react-icons/fa6";
 import { IoArrowBack } from "react-icons/io5";
+import { Context } from "../context/Context";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-const MyDocument = ({ data, image }) => {
+const MyDocument = ({ studentData, profileData }) => {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -266,7 +267,7 @@ const MyDocument = ({ data, image }) => {
     ).padStart(2, "0")}/${date.getFullYear()}`;
   };
 
-  const finalDueDate = formatDueDate(data.dueDate);
+  const finalDueDate = formatDueDate(studentData.dueDate);
 
   return (
     <Document>
@@ -274,10 +275,18 @@ const MyDocument = ({ data, image }) => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Image src={images.logo} style={{ width: 100 }} />
-            <View style={{display: "flex", flexDirection: "column", marginLeft: -10}}>
-              <Text style={styles.libraryName}>PRATAP LIBRARY</Text>
-              <Text style={styles.subHeader}>A SELF STUDY CENTER</Text>
+            {/* <Image src={images.logo} style={{ width: 100 }} /> */}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                // marginLeft: -10,
+              }}
+            >
+              <Text style={styles.libraryName}>
+                {profileData.libraryName.toUpperCase()}
+              </Text>
+              {/* <Text style={styles.subHeader}>A SELF STUDY CENTER</Text> */}
             </View>
           </View>
           <View
@@ -286,7 +295,7 @@ const MyDocument = ({ data, image }) => {
               flexDirection: "column",
               alignItems: "center",
               gap: 3,
-              marginTop: -30,
+              // marginTop: -30,
             }}
           >
             <View
@@ -317,7 +326,7 @@ const MyDocument = ({ data, image }) => {
               }}
             >
               <Image src={images.phone} style={{ width: 10, height: 10 }} />
-              <Text style={styles.addressText}>9304161888, 9835491795</Text>
+              <Text style={styles.addressText}>{profileData.phone}</Text>
             </View>
           </View>
         </View>
@@ -336,27 +345,29 @@ const MyDocument = ({ data, image }) => {
             <View style={styles.infoContainer}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Student's Name : </Text>
-                <Text style={styles.infoValue}>{data.studentName}</Text>
+                <Text style={styles.infoValue}>{studentData.studentName}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Father's Name : </Text>
-                <Text style={styles.infoValue}>{data.fatherName}</Text>
+                <Text style={styles.infoValue}>{studentData.fatherName}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Phone No. : </Text>
-                <Text style={styles.infoValue}>{data.phone}</Text>
+                <Text style={styles.infoValue}>{studentData.phone}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Shift : </Text>
-                <Text style={styles.infoValue}>{data.shift}</Text>
+                <Text style={styles.infoValue}>{studentData.shift}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Seat No. : </Text>
-                <Text style={styles.infoValue}>{data.seat}</Text>
+                <Text style={styles.infoValue}>
+                  {studentData.room + " - " + studentData.seatNo}
+                </Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>ID Proof : </Text>
-                <Text style={styles.infoValue}>{data.idProof}</Text>
+                <Text style={styles.infoValue}>{studentData.idProof}</Text>
               </View>
             </View>
 
@@ -375,11 +386,11 @@ const MyDocument = ({ data, image }) => {
               <Text style={styles.photoLabel}>Student Photo</Text>
             </View> */}
 
-            {image && (
+            {studentData.image && (
               <View style={styles.photoContainer}>
                 <View style={styles.photoFrame}>
                   <Image
-                    src={URL.createObjectURL(image)}
+                    src={studentData.image}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -395,13 +406,13 @@ const MyDocument = ({ data, image }) => {
           <View style={styles.addressContainer}>
             <Text style={styles.infoLabel}>Local Address : </Text>
             <Text style={{ fontSize: 12, fontWeight: "normal" }}>
-              {data.localAddress}
+              {studentData.localAdd}
             </Text>
           </View>
           <View style={styles.addressContainer}>
             <Text style={styles.infoLabel}>Permanent Address : </Text>
             <Text style={{ fontSize: 12, fontWeight: "normal" }}>
-              {data.permanentAddress}
+              {studentData.permanentAdd}
             </Text>
           </View>
           <View style={styles.paymentContainer}>
@@ -411,7 +422,7 @@ const MyDocument = ({ data, image }) => {
             </View>
             <View style={styles.paymentItem}>
               <Text style={styles.infoLabel}>Amount : </Text>
-              <Text style={styles.paymentText}>Rs. {data.amount}</Text>
+              <Text style={styles.paymentText}>Rs. {studentData.amount}</Text>
             </View>
           </View>
         </View>
@@ -487,9 +498,29 @@ const MyDocument = ({ data, image }) => {
   );
 };
 
-function PDF2({ data, image, setShowPDF }) {
-  const studentName = data.studentName;
-  const phone = 91 + data.phone;
+function PDF2({ studentData }) {
+  const { profileData } = useContext(Context);
+  if (!studentData || !studentData.studentName) {
+    return (
+      <div className="flex flex-col w-full justify-center items-center gap-9 ">
+        <h1 className="text-[30px] font-semibold text-red-500 ">
+          PDF Data Error
+        </h1>
+        <p className="text-lg text-gray-700">
+          Student data is missing or incomplete.
+        </p>
+        {/* <button
+          onClick={() => setShowPDF(false)}
+          className="bg-[#4BDE80] text-[#101826] p-[10px] rounded-[10px] font-semibold mt-4"
+        >
+          Back to Form
+        </button> */}
+      </div>
+    );
+  }
+
+  const studentName = studentData.studentName;
+  const phone = 91 + studentData.phone;
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -499,51 +530,63 @@ function PDF2({ data, image, setShowPDF }) {
   const fileName = `${studentName}_${formattedDate.replace(/\//g, "-")}.pdf`;
 
   return (
-    <div className="flex flex-col w-full justify-center items-center">
-      <div className="flex w-[150px] bg-[#539486] text-white p-[10px] rounded-[10px] mb-[30px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 self-start ml-[20px] lg:ml-[30px] shadow-[#539486] shadow-lg ">
-        <IoArrowBack size={16} />
-        <button
+    <div className="flex flex-col w-full justify-center items-start gap-9 ">
+      <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col ">
+          <h1 className="text-[30px] font-semibold ">Confirmation Page</h1>
+          <h1 className="text-[25px] text-[#757C89] font-semibold mt-[-5px] ">
+            Download your receipt
+          </h1>
+        </div>
+        {/* <div
           onClick={() => setShowPDF(false)}
-          className="text-[16px] font-semibold"
+          className="flex w-[150px] bg-[#4BDE80] text-[#101826] p-[10px] rounded-[10px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 "
         >
-          Back to Form
-        </button>
+          <IoArrowBack size={16} />
+          <p className="text-[16px] font-semibold">Back to Form</p>
+        </div> */}
       </div>
-      <div className="w-full max-w-[1200px] px-[10px] sm:px-[20px] mb-5">
-        <h2 className="text-xl font-bold mb-4 text-center text-[#539486]">
+
+      <div className="w-full max-w-[1200px] ">
+        <h2 className="text-xl font-bold mb-4 text-center text-[#757C89]">
           PDF Preview
         </h2>
-        <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[650px] mb-[20px] rounded-[8px] overflow-hidden border-[2px] border-[#539486] ">
+        <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[650px] mb-[20px] rounded-[8px] overflow-hidden border-[2px] border-[#757C89] ">
           <PDFViewer width="100%" height="100%">
-            <MyDocument data={data} image={image} />
+            <MyDocument studentData={studentData} profileData={profileData} />
           </PDFViewer>
         </div>
       </div>
 
-      <div className="mt-[0px] flex flex-col sm:flex-row items-center justify-center gap-[20px]">
+      <div className=" flex flex-col sm:flex-row items-center justify-center w-full gap-[60px]">
         <PDFDownloadLink
-          document={<MyDocument data={data} image={image} />}
+          document={<MyDocument studentData={studentData} />}
           fileName={fileName}
         >
           {({ loading }) => (
             <button
               disabled={loading}
-              className="w-[150px] bg-[#539486] text-white p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 shadow-[#539486] shadow-lg"
+              className="w-[400px] bg-[#374151] text-white p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 "
             >
-              {loading ? "Preparing PDF..." : "Print PDF"}
+              {loading ? "Preparing PDF..." : "Download PDF"}
             </button>
           )}
         </PDFDownloadLink>
 
         <a
-          href={`https://wa.me/${phone}?text=Here is your receipt `}
+          href={`https://wa.me/${phone}?text=Hello ${studentData.studentName}, your sat booking at Pratap Library is confirmed.
+          // 
+          // Date: ${formattedDate}
+          // Room: ${studentData.room}
+          // Seat: ${studentData.seatNo}
+          // Shift: ${studentData.shift}
+          // 
+          // Thank You! `}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <div className="flex bg-[#539486] text-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.1] transition duration-300 shadow-[#539486] shadow-lg ">
-            <div className="w-[30px] h-[30px] bg-green-400 rounded-[50%] flex flex-row justify-center items-center text-[45px] text-white ">
-              <FaWhatsapp />
-            </div>
+          <div className="flex items-center justify-center w-[400px] bg-[#4BDE80] text-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.1] transition duration-300 ">
+            <FaWhatsapp size={30} />
             <p className="text-[18px] font-semibold">Send on Whatsapp</p>
           </div>
         </a>

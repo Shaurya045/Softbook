@@ -3,25 +3,57 @@ import seatModel from "../models/seat.model.js";
 const addSeat = async (req, res) => {
   try {
     const { room, shift, seatNo, libraryId } = req.body;
-    const seatExists = await seatModel.findOne({
-      room,
-      shift,
-      seatNo,
-      libraryId,
-    });
-    if (seatExists) {
+
+    // Find the highest seatNo for this room, shift, and libraryId combination
+    const highestSeat = await seatModel
+      .findOne({
+        room,
+        shift,
+        libraryId,
+      })
+      .sort({ seatNo: -1 });
+
+    // Calculate the starting seatNo for new seats
+    const startingSeatNo = highestSeat ? highestSeat.seatNo + 1 : 1;
+
+    // Create multiple seats based on the seatNo value from frontend
+    const seatsToCreate = [];
+    for (let i = 0; i < seatNo; i++) {
+      const newSeatNo = startingSeatNo + i;
+
+      // Check if this seat already exists
+      const seatExists = await seatModel.findOne({
+        room,
+        shift,
+        seatNo: newSeatNo,
+        libraryId,
+      });
+
+      if (!seatExists) {
+        seatsToCreate.push({
+          room,
+          shift,
+          seatNo: newSeatNo,
+          libraryId,
+          status: "available",
+        });
+      }
+    }
+
+    if (seatsToCreate.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "Seat already exists" });
+        .json({ success: false, message: "All seats already exist" });
     }
-    const newSeat = new seatModel({
-      room,
-      shift,
-      seatNo,
-      libraryId,
+
+    // Insert all new seats
+    await seatModel.insertMany(seatsToCreate);
+
+    res.status(201).json({
+      success: true,
+      message: `${seatsToCreate.length} seats added successfully`,
+      seatsAdded: seatsToCreate.length,
     });
-    await newSeat.save();
-    res.status(201).json({ success: true, message: "Seat added successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -38,4 +70,64 @@ const allSeats = async (req, res) => {
   }
 };
 
-export { addSeat, allSeats };
+// Controller for deleting seats
+const deleteSeat = async (req, res) => {
+  try {
+    // Accept seat id(s) via body, query, or params
+    const { id, ids, room, shift, seatNo, libraryId } = req.body;
+
+    // Delete by seat id(s)
+    if (id) {
+      const deleted = await seatModel.findByIdAndDelete(id);
+      if (!deleted) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Seat not found" });
+      }
+      return res
+        .status(200)
+        .json({ success: true, message: "Seat deleted successfully" });
+    }
+
+    // Delete multiple by array of ids
+    if (Array.isArray(ids) && ids.length > 0) {
+      const result = await seatModel.deleteMany({ _id: { $in: ids } });
+      return res.status(200).json({
+        success: true,
+        message: `${result.deletedCount} seat(s) deleted successfully`,
+      });
+    }
+
+    // Delete by room, shift, seatNo, libraryId (for more granular deletion)
+    if (room && shift && seatNo && libraryId) {
+      const deleted = await seatModel.findOneAndDelete({
+        room,
+        shift,
+        seatNo,
+        libraryId,
+      });
+      if (!deleted) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Seat not found" });
+      }
+      return res
+        .status(200)
+        .json({ success: true, message: "Seat deleted successfully" });
+    }
+
+    // If not enough info provided
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message:
+          "Please provide seat id, ids, or room/shift/seatNo/libraryId to delete.",
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export { addSeat, allSeats, deleteSeat };

@@ -1,0 +1,128 @@
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { Context } from "./Context";
+import { useEffect, useState } from "react";
+
+const ContextProvider = (props) => {
+  const backendURL = "http://192.168.0.100:3000/api/v1/";
+
+  const [theme, setTheme] = useState("dark");
+  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [id, setId] = useState("");
+  const { libraryId } = useParams();
+  const [studentData, setStudentData] = useState({});
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+  const [attendanceData, setAttendanceData] = useState([]);
+  //   const [profileData, setProfileData] = useState({});
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+  }, []);
+
+  // Request location on first load
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLat(position.coords.latitude);
+          setLng(position.coords.longitude);
+        },
+        () => {
+          setLat(null);
+          setLng(null);
+        }
+      );
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
+
+  //   const loadProfiletData = async () => {
+  //     try {
+  //       const response = await axios.get(`${backendURL}admin/profile`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (response.data.success) {
+  //         setProfileData(response.data.admin || {});
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching students:", err);
+  //     }
+  //   };
+
+  const loadStudentData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}studentauth/getstudent`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setStudentData(response.data.student || {});
+      }
+    } catch (err) {
+      console.error("Error fetching students:", err);
+    }
+  };
+
+  const loadAttendanceData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}attendance/student`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setAttendanceData(response.data.attendance || []);
+        console.log(response.data.attendance);
+      }
+    } catch (err) {
+      console.error("Error fetching attendance:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      loadStudentData();
+      loadAttendanceData();
+      // loadProfiletData();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token && localStorage.getItem("token")) {
+      setToken(localStorage.getItem("token"));
+    }
+    setId(libraryId);
+    setLoading(false);
+  }, []);
+
+  const contextValue = {
+    backendURL,
+    theme,
+    toggleTheme,
+    setToken,
+    token,
+    loading,
+    id,
+    studentData,
+    lat,
+    lng,
+    setLat,
+    setLng,
+    attendanceData,
+    // profileData,
+    // loadStudentData,
+  };
+
+  return (
+    <Context.Provider value={contextValue}>{props.children}</Context.Provider>
+  );
+};
+
+export default ContextProvider;

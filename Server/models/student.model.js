@@ -47,9 +47,10 @@ const studentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    // dueDate: {
-    //   type: Date,
-    // },
+    dueDate: {
+      type: Date,
+      required: false,
+    },
     idProof: {
       type: String,
       required: true,

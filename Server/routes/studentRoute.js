@@ -1,9 +1,9 @@
 import express from "express";
 import {
   admission,
+  deleteStudent,
   getAllStudent,
   getStudentbyId,
-  // seatcount,
   updateStudent,
 } from "../controllers/studentController.js";
 import auth from "../middleware/auth.js";
@@ -22,6 +22,7 @@ router.post(
 );
 router.get("/allstudents", auth, getAllStudent);
 router.post("/getstudent", auth, getStudentbyId);
-router.put("/updatestudent", auth, updateStudent);
+router.patch("/updatestudent", auth, updateStudent);
+router.delete("/delete", auth, deleteStudent);
 
 export default router;
