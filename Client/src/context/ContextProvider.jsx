@@ -91,6 +91,17 @@ const ContextProvider = (props) => {
   };
 
   useEffect(() => {
+    if (
+      profileData &&
+      profileData.subscription &&
+      profileData.subscription.active === false
+    ) {
+      setToken("");
+      localStorage.removeItem("token");
+    }
+  }, [profileData?.subscription?.active]);
+
+  useEffect(() => {
     if (token) {
       loadProfiletData();
       loadStudentData();

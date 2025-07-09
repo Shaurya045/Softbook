@@ -4,7 +4,8 @@ import bcrypt from "bcrypt";
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, libraryName, location } = req.body;
+    const { name, email, password, phone, libraryName, address, location } =
+      req.body;
     const existingAdmin = await adminModel.findOne({ email });
     if (existingAdmin) {
       return res
@@ -25,6 +26,7 @@ const register = async (req, res) => {
       password: hashedPassword,
       phone,
       libraryName,
+      address,
       location: geoLocation,
     });
     await newAdmin.save();
@@ -51,6 +53,12 @@ const login = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid Credentials." });
+    }
+    if (!admin.subscription || !admin.subscription.active) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not subscribed. Please contact SuperAdmin.",
+      });
     }
     const token = jwt.sign({ id: admin._id }, process.env.JWT_KEY);
     res
@@ -96,4 +104,55 @@ const updateLocation = async (req, res) => {
   }
 };
 
-export { register, login, profile, updateLocation };
+const updateSubscription = async (req, res) => {
+  try {
+    const { adminId, active, plan, expiresAt } = req.body;
+    if (!adminId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "adminId is required." });
+    }
+    const updateFields = {};
+    if (typeof active === "boolean")
+      updateFields["subscription.active"] = active;
+    if (plan) updateFields["subscription.plan"] = plan;
+    if (expiresAt) updateFields["subscription.expiresAt"] = expiresAt;
+    const updatedAdmin = await adminModel.findByIdAndUpdate(
+      adminId,
+      { $set: updateFields },
+      { new: true }
+    );
+    if (!updatedAdmin) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Admin not found." });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Subscription updated.",
+      admin: updatedAdmin,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const allAdmins = async (req, res) => {
+  try {
+    const admins = await adminModel.find({});
+    res.status(201).json({ success: "true", admins });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export {
+  register,
+  login,
+  profile,
+  updateLocation,
+  updateSubscription,
+  allAdmins,
+};

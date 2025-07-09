@@ -1,3 +1,4 @@
+import adminModel from "../models/admin.model.js";
 import studentModel from "../models/student.model.js";
 import studentAuthModel from "../models/studentAuth.model.js";
 import bcrypt from "bcrypt";
@@ -60,6 +61,15 @@ const login = async (req, res) => {
         message: "You are not admitted in this study center.",
       });
     }
+    // Check if the library (admin) is subscribed
+    const admin = await adminModel.findById(libraryId);
+    if (!admin || !admin.subscription || !admin.subscription.active) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Library subscription inactive. Please contact your library administrator.",
+      });
+    }
 
     // 2. Find the auth record for this student._id
     const studentAuth = await studentAuthModel.findOne({
@@ -98,19 +108,30 @@ const getStudentData = async (req, res) => {
     if (!studentId) {
       return res
         .status(401)
-        .json({ success: false, message: "Not authorized. Please login again." });
+        .json({
+          success: false,
+          message: "Not authorized. Please login again.",
+        });
     }
 
     // Find the student by id
-    const student = await studentModel.findById(studentId);
+    const student = await studentModel.findById(studentId).lean();
     if (!student) {
       return res
         .status(404)
         .json({ success: false, message: "Student not found" });
     }
 
-    // Optionally, you can filter out sensitive fields if needed
-    res.status(200).json({ success: true, student });
+    // Fetch the library (admin) data, excluding sensitive fields
+    let library = null;
+    if (student.libraryId) {
+      // Only select public fields from admin model
+      library = await adminModel.findById(student.libraryId)
+        .select("name email phone libraryName address location subscription")
+        .lean();
+    }
+
+    res.status(200).json({ success: true, student, library });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

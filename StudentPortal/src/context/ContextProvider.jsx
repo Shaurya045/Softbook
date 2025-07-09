@@ -15,7 +15,7 @@ const ContextProvider = (props) => {
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
-  //   const [profileData, setProfileData] = useState({});
+  const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "dark";
@@ -46,19 +46,6 @@ const ContextProvider = (props) => {
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  //   const loadProfiletData = async () => {
-  //     try {
-  //       const response = await axios.get(`${backendURL}admin/profile`, {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-  //       if (response.data.success) {
-  //         setProfileData(response.data.admin || {});
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching students:", err);
-  //     }
-  //   };
-
   const loadStudentData = async () => {
     try {
       const response = await axios.get(`${backendURL}studentauth/getstudent`, {
@@ -66,6 +53,7 @@ const ContextProvider = (props) => {
       });
       if (response.data.success) {
         setStudentData(response.data.student || {});
+        setProfileData(response.data.library || {});
       }
     } catch (err) {
       console.error("Error fetching students:", err);
@@ -79,7 +67,7 @@ const ContextProvider = (props) => {
       });
       if (response.data.success) {
         setAttendanceData(response.data.attendance || []);
-        console.log(response.data.attendance);
+        // console.log(response.data.attendance);
       }
     } catch (err) {
       console.error("Error fetching attendance:", err);
@@ -87,10 +75,20 @@ const ContextProvider = (props) => {
   };
 
   useEffect(() => {
+    if (
+      profileData &&
+      profileData.subscription &&
+      profileData.subscription.active === false
+    ) {
+      setToken("");
+      localStorage.removeItem("token");
+    }
+  }, [profileData]);
+
+  useEffect(() => {
     if (token) {
       loadStudentData();
       loadAttendanceData();
-      // loadProfiletData();
     }
   }, [token]);
 
@@ -116,8 +114,7 @@ const ContextProvider = (props) => {
     setLat,
     setLng,
     attendanceData,
-    // profileData,
-    // loadStudentData,
+    profileData,
   };
 
   return (

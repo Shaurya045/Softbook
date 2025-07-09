@@ -13,7 +13,7 @@ function QR() {
       <QRCode
         className="rounded-xl"
         size={400}
-        value={`https://bb79fc885255.ngrok-free.app/${profileData._id}/attendance`}
+        value={`http://192.168.0.100:5175/${profileData._id}/attendance`}
       />
     </div>
   );

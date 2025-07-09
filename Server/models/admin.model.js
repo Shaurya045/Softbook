@@ -24,16 +24,25 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
     location: {
       type: {
         type: String,
-        enum: ['Point'],
-        default: 'Point',
+        enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
         type: [Number], // [lng, lat]
         required: false,
       },
+    },
+    subscription: {
+      active: { type: Boolean, default: false },
+      plan: { type: String, default: "basic" },
+      expiresAt: { type: Date, default: null },
     },
   },
   { minimize: false }

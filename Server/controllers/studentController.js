@@ -2,6 +2,7 @@ import attendanceModel from "../models/attendance.model.js";
 import seatModel from "../models/seat.model.js";
 import studentModel from "../models/student.model.js";
 import { v2 as cloudinary } from "cloudinary";
+import studentAuthModel from "../models/studentAuth.model.js";
 
 const admission = async (req, res) => {
   try {
@@ -228,6 +229,8 @@ const deleteStudent = async (req, res) => {
     );
 
     await attendanceModel.deleteMany({ student: id });
+
+    await studentAuthModel.findOneAndDelete({ student: id });
 
     res.status(200).json({ success: true, message: "Student Deleted" });
   } catch (error) {
