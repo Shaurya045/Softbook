@@ -62,7 +62,8 @@ const addSeat = async (req, res) => {
 
 const allSeats = async (req, res) => {
   try {
-    const seats = await seatModel.find().populate("libraryId");
+    // Sort by seatNo ascending
+    const seats = await seatModel.find().sort({ seatNo: 1 }).populate("libraryId");
     res.status(200).json({ success: true, seats });
   } catch (error) {
     console.log(error);
