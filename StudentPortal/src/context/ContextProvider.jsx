@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 const ContextProvider = (props) => {
   const backendURL = "http://192.168.0.100:3000/api/v1/";
 
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    // Default to dark if nothing is set
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme ? savedTheme : "dark";
+  });
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
   const [id, setId] = useState("");
@@ -18,10 +22,22 @@ const ContextProvider = (props) => {
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-  }, []);
+    // Always set dark mode by default if not set
+    if (!localStorage.getItem("theme")) {
+      localStorage.setItem("theme", "dark");
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
 
   // Request location on first load
   useEffect(() => {
@@ -38,13 +54,6 @@ const ContextProvider = (props) => {
       );
     }
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
 
   const loadStudentData = async () => {
     try {

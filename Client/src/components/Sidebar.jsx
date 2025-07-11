@@ -11,6 +11,7 @@ import { RiAddBoxLine } from "react-icons/ri";
 
 import ThemeToggle from "./ThemeToggle";
 import { Context } from "../context/Context";
+import { images } from "../assets/assets";
 
 function Sidebar() {
   const { theme, setToken } = useContext(Context);
@@ -28,7 +29,14 @@ function Sidebar() {
     <div
       className={`${bgColor} ${textColor} w-[20%] min-h-[100vh] max-h-screen text-[max(1vw,18px)] flex flex-col gap-12 justify-center items-start px-8 py-6 `}
     >
-      <h1 className="text-xl font-bold ">SOFT BOOK</h1>
+      <div className="flex items-center self-start ml-[-4px] ">
+        <img className="w-[55px] sm:w-[50px]" src={images.logo} alt="logo" />
+        <img
+          className="w-[160px] sm:w-[155px] "
+          src={images.letterLogo}
+          alt="logo"
+        />
+      </div>
       <div className="flex flex-col items-start justify-between h-full ">
         <div className=" flex flex-col gap-4 ">
           <NavLink

@@ -309,13 +309,14 @@ const MyDocument = ({ studentData, profileData }) => {
             >
               <Image src={images.map} style={{ width: 10, height: 10 }} />
               <Text style={styles.addressText}>
-                H. No.-34-A, Singh Villa, Road No.- 19, (Near Noble Public
-                School),
+                {profileData.address
+                  ? profileData.address
+                  : "Patna, Bihar, India"}
               </Text>
             </View>
-            <Text style={styles.addressText}>
+            {/* <Text style={styles.addressText}>
               Bank Colony, Baba Chowk, Keshri Nagar, Patna-800024
-            </Text>
+            </Text> */}
             <View
               style={{
                 display: "flex",
@@ -560,7 +561,7 @@ function PDF2({ studentData }) {
 
       <div className=" flex flex-col sm:flex-row items-center justify-center w-full gap-[60px]">
         <PDFDownloadLink
-          document={<MyDocument studentData={studentData} />}
+          document={<MyDocument studentData={studentData} profileData={profileData} />}
           fileName={fileName}
         >
           {({ loading }) => (

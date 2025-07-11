@@ -120,14 +120,20 @@ function Register() {
 
   return (
     <div className="flex flex-col items-center w-full h-full">
-      <Link to="/" className="flex items-center self-start mt-1 ml-6">
-        <img className="w-24" src={images.logo} alt="" />
-        <h1 className="text-2xl font-semibold  ">PRATAP TECH SOLUTIONS</h1>
+      <Link to="/" className="flex items-center self-start mt-4 ml-4 z-20">
+        <img className="w-[55px] sm:w-[75px]" src={images.logo} alt="logo" />
+        <img
+          className="w-[160px] sm:w-[233px] "
+          src={images.letterLogo}
+          alt="logo"
+        />
       </Link>
       <div className=" flex flex-col justify-center h-full gap-8 mt-[-50px]  ">
         <div>
           <h1 className="text-[30px] font-semibold ">Welcome!</h1>
-          <p className="text-[#757C89] ">Sing Up and let us handle your business</p>
+          <p className="text-[#757C89] ">
+            Sing Up and let us handle your business
+          </p>
         </div>
         {locationError && (
           <div className="text-red-500 text-center mb-2">{locationError}</div>
