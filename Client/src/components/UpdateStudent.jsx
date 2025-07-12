@@ -16,6 +16,7 @@ function UpdateStudent({ setShowEdit, item }) {
   const [shift, setShift] = useState(capitalize(item.shift || shifts[0]) || "");
   const [seat, setSeat] = useState(item.seatNo);
   const [duration, setDuration] = useState(item.duration);
+  const [amount, setAmount] = useState(item.amount);
 
   const [filterSeats, setFilterSeats] = useState([]);
 
@@ -25,12 +26,11 @@ function UpdateStudent({ setShowEdit, item }) {
     shift,
     seatNo: seat,
     duration,
+    amount,
   };
 
   useEffect(() => {
-    const filter = seatData.filter(
-      (s) => s.room === room && s.shift === shift
-    );
+    const filter = seatData.filter((s) => s.room === room && s.shift === shift);
     setFilterSeats(filter);
   }, [room, shift, seatData]);
 
@@ -159,6 +159,21 @@ function UpdateStudent({ setShowEdit, item }) {
               className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
               type="text"
               placeholder="2"
+              required
+              style={{ "::placeholder": { color: "white" } }}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-1 w-full rounded-lg bg-[#1F2937] p-3 ">
+            <p className="text-[16px] font-semibold pl-[3px text-[#4BDE80] ">
+              Amount
+            </p>
+            <input
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              name="amount"
+              className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+              type="text"
+              placeholder="500"
               required
               style={{ "::placeholder": { color: "white" } }}
             />

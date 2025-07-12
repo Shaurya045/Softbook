@@ -13,6 +13,7 @@ function Register() {
     phone: "",
     libraryName: "",
     password: "",
+    address: "",
   });
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState("");
@@ -119,7 +120,7 @@ function Register() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-full">
+    <div className="flex flex-col items-center w-full h-screen">
       <Link to="/" className="flex items-center self-start mt-4 ml-4 z-20">
         <img className="w-[55px] sm:w-[75px]" src={images.logo} alt="logo" />
         <img
@@ -195,6 +196,19 @@ function Register() {
                 required
               />
             </div>
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p className="text-[16px] font-semibold pl-[3px] ">Address</p>
+            <textarea
+              value={data.address}
+              onChange={onChangeHandler}
+              name="address"
+              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] resize-none"
+              type="text"
+              placeholder="Patna, Bihar..."
+              rows={2}
+              required
+            />
           </div>
           <div className="flex flex-col gap-1 w-full">
             <p className="text-[16px] font-semibold pl-[3px] ">Password</p>

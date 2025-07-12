@@ -33,7 +33,6 @@ const studentSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      unique: true,
     },
     amount: {
       type: Number,
@@ -68,8 +67,11 @@ const studentSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { minimize: false }
+  { minimize: false, timestamps: true }
 );
+
+// Add compound unique index for phone and libraryId
+studentSchema.index({ phone: 1, libraryId: 1 }, { unique: true });
 
 const studentModel =
   mongoose.models.student || mongoose.model("student", studentSchema);

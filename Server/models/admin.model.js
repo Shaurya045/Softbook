@@ -45,7 +45,7 @@ const adminSchema = new mongoose.Schema(
       expiresAt: { type: Date, default: null },
     },
   },
-  { minimize: false }
+  { minimize: false, timestamps: true }
 );
 
 const adminModel =

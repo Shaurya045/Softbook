@@ -62,8 +62,12 @@ const addSeat = async (req, res) => {
 
 const allSeats = async (req, res) => {
   try {
+    const libraryId = req.libraryId;
     // Sort by seatNo ascending
-    const seats = await seatModel.find().sort({ seatNo: 1 }).populate("libraryId");
+    const seats = await seatModel
+      .find({ libraryId })
+      .sort({ seatNo: 1 })
+      .populate("libraryId");
     res.status(200).json({ success: true, seats });
   } catch (error) {
     console.log(error);
@@ -118,13 +122,11 @@ const deleteSeat = async (req, res) => {
     }
 
     // If not enough info provided
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message:
-          "Please provide seat id, ids, or room/shift/seatNo/libraryId to delete.",
-      });
+    return res.status(400).json({
+      success: false,
+      message:
+        "Please provide seat id, ids, or room/shift/seatNo/libraryId to delete.",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

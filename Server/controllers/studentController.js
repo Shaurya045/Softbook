@@ -24,7 +24,39 @@ const admission = async (req, res) => {
 
     const libraryId = req.libraryId;
 
-    // Upload files to Cloudinary
+    // Check required conditions BEFORE uploading files or creating student
+    if (!libraryId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "libraryId is required." });
+    }
+
+    const existingStudent = await studentModel.findOne({ phone, libraryId });
+    if (existingStudent) {
+      return res
+        .status(400)
+        .json({ success: "false", message: "Student already exists." });
+    }
+
+    // Check seat availability before proceeding
+    const seat = await seatModel.findOne({
+      room,
+      shift,
+      seatNo,
+      libraryId,
+    });
+    if (!seat) {
+      return res
+        .status(400)
+        .json({ status: "error", error: "Seat does not exist" });
+    }
+    if (seat.status === "booked") {
+      return res
+        .status(400)
+        .json({ status: "error", error: "Seat already booked" });
+    }
+
+    // Now upload files to Cloudinary after all checks pass
     let idUploadUrl = "";
     let imageUrl = "";
 
@@ -44,19 +76,6 @@ const admission = async (req, res) => {
       imageUrl = imageResult.secure_url;
     }
 
-    if (!libraryId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "libraryId is required." });
-    }
-
-    const existingStudent = await studentModel.findOne({ phone });
-    if (existingStudent) {
-      return res
-        .status(400)
-        .json({ success: "false", message: "Student already exists." });
-    }
-
     let due;
     if (dueDate) {
       due = dueDate;
@@ -65,6 +84,7 @@ const admission = async (req, res) => {
       due = new Date(now.setMonth(now.getMonth() + Number(duration || 1)));
     }
 
+    // Create student only after all checks and uploads
     const student = await studentModel.create({
       studentName,
       fatherName,
@@ -84,27 +104,7 @@ const admission = async (req, res) => {
       libraryId,
     });
 
-    // let shiftLower = shift.toLowerCase();
-
-    // Seat booking logic according to seat model
-    const seat = await seatModel.findOne({
-      room,
-      shift,
-      seatNo,
-      libraryId,
-    });
-    if (!seat) {
-      await studentModel.findByIdAndDelete(student._id);
-      return res
-        .status(400)
-        .json({ status: "error", error: "Seat does not exist" });
-    }
-    if (seat.status === "booked") {
-      await studentModel.findByIdAndDelete(student._id);
-      return res
-        .status(400)
-        .json({ status: "error", error: "Seat already booked" });
-    }
+    // Only after student is created, update seat status and save
     seat.status = "booked";
     seat.studentId = student._id;
     await seat.save();
@@ -120,12 +120,13 @@ const admission = async (req, res) => {
 
 const getAllStudent = async (req, res) => {
   try {
-    const students = await studentModel.find({});
+    const libraryId = req.libraryId;
+    const students = await studentModel.find({ libraryId });
     res.status(201).json({ success: "true", students });
   } catch (error) {
     console.log(error);
     res
-      .starus(500)
+      .status(500)
       .json({ success: "false", message: "Internal Server Error" });
   }
 };
@@ -145,7 +146,7 @@ const getStudentbyId = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   try {
-    const { id, room, shift, seatNo, duration } = req.body;
+    const { id, room, shift, seatNo, duration, amount } = req.body;
     if (!id) {
       return res
         .status(400)
@@ -169,30 +170,42 @@ const updateStudent = async (req, res) => {
       due.setMonth(due.getMonth() + Number(duration));
       updates.dueDate = due;
     }
+    if (amount !== undefined) updates.amount = amount;
 
     // Only update seat if seat data is provided
+    // Only update seat assignment if the seat, room, or shift is actually being changed
     if (room && shift && seatNo) {
-      // Free previous seat
-      await seatModel.findOneAndUpdate(
-        { studentId: id },
-        { status: "available", studentId: null }
-      );
-      // Book new seat
-      let shiftLower = shift.toLowerCase();
-      const seat = await seatModel.findOne({ room, shift: shiftLower, seatNo });
-      if (!seat) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Seat does not exist" });
+      // Check if the seat assignment is actually changing
+      const isSeatChanged =
+        student.room !== room ||
+        student.shift !== shift ||
+        String(student.seatNo) !== String(seatNo);
+
+      if (isSeatChanged) {
+        // Book new seat: check if seat exists and is available or already assigned to this student
+        const seat = await seatModel.findOne({ room, shift, seatNo });
+        if (!seat) {
+          return res
+            .status(400)
+            .json({ success: false, message: "Seat does not exist" });
+        }
+        if (seat.status === "booked" && String(seat.studentId) !== String(id)) {
+          return res
+            .status(400)
+            .json({ success: false, message: "Seat already booked" });
+        }
+
+        // Free previous seat only after checks
+        await seatModel.findOneAndUpdate(
+          { studentId: id },
+          { status: "available", studentId: null }
+        );
+
+        seat.status = "booked";
+        seat.studentId = id;
+        await seat.save();
       }
-      if (seat.status === "booked" && String(seat.studentId) !== String(id)) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Seat already booked" });
-      }
-      seat.status = "booked";
-      seat.studentId = id;
-      await seat.save();
+      // If seat is not changed, do nothing regarding seat assignment
     }
 
     const updatedStudent = await studentModel.findByIdAndUpdate(id, updates, {
@@ -219,6 +232,50 @@ const deleteStudent = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Student not found" });
+    }
+
+    function getCloudinaryPublicId(url) {
+      if (!url) return null;
+      const parts = url.split("/upload/");
+      if (parts.length < 2) return null;
+
+      const publicPathWithExtension = parts[1];
+      const segments = publicPathWithExtension.split("/");
+
+      if (/^v\d+$/.test(segments[0])) {
+        segments.shift();
+      }
+
+      const pathWithoutExtension = segments.join("/").split(".")[0];
+      return pathWithoutExtension;
+    }
+
+    // Delete student image from Cloudinary
+    if (student.image) {
+      const imagePublicId = getCloudinaryPublicId(student.image);
+      // console.log("image", imagePublicId);
+      if (imagePublicId) {
+        try {
+          const result = await cloudinary.uploader.destroy(imagePublicId);
+          // console.log("Cloudinary destroy image result:", result);
+        } catch (err) {
+          console.log("Error deleting student image from Cloudinary:", err);
+        }
+      }
+    }
+
+    // Delete student idUpload from Cloudinary
+    if (student.idUpload) {
+      const idUploadPublicId = getCloudinaryPublicId(student.idUpload);
+      // console.log("id", idUploadPublicId);
+      if (idUploadPublicId) {
+        try {
+          const result = await cloudinary.uploader.destroy(idUploadPublicId);
+          // console.log("Cloudinary destroy idUpload result:", result);
+        } catch (err) {
+          console.log("Error deleting student idUpload from Cloudinary:", err);
+        }
+      }
     }
 
     await studentModel.findByIdAndDelete(id);

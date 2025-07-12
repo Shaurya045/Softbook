@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import adminModel from "../models/admin.model.js";
+import studentModel from "../models/student.model.js";
 
 const login = async (req, res) => {
   try {
@@ -22,4 +24,32 @@ const login = async (req, res) => {
   }
 };
 
-export { login };
+const getAdminbyId = async (req, res) => {
+  try {
+    const { libraryId } = req.body;
+    if (!libraryId)
+      return res
+        .status(401)
+        .json({ success: false, message: "Library Not Found" });
+    const admin = await adminModel.findById(libraryId).select("-password");
+    res.status(200).json({ success: true, admin });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Sever Error." });
+  }
+};
+
+const getAllStudentbgAdminId = async (req, res) => {
+  try {
+    const { libraryId } = req.body;
+    const students = await studentModel.find({ libraryId });
+    res.status(201).json({ success: "true", students });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: "false", message: "Internal Server Error" });
+  }
+};
+
+export { login, getAdminbyId, getAllStudentbgAdminId };
