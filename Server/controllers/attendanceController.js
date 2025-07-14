@@ -53,7 +53,7 @@ const markAttendance = async (req, res) => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     const todayISTMidnightUTC = today;
-    console.log(todayISTMidnightUTC);
+    // console.log(todayISTMidnightUTC);
 
     // Check if already marked
     const alreadyMarked = await attendanceModel.findOne({
@@ -66,12 +66,15 @@ const markAttendance = async (req, res) => {
         message: "Attendance already marked for today.",
       });
     }
-    await attendanceModel.create({
+    // console.log("libraryId",student.libraryId);
+    const a = await attendanceModel.create({
       student: studentId,
       date: todayISTMidnightUTC,
       status: "present",
       markedBy: "student",
+      libraryId: student.libraryId, // Add libraryId to the attendance record
     });
+    // console.log("libraryId",a.libraryId);
     res
       .status(201)
       .json({ success: true, message: "Attendance marked successfully." });
@@ -84,10 +87,18 @@ const markAttendance = async (req, res) => {
 // Student views their own attendance
 const getStudentAttendance = async (req, res) => {
   try {
+    // If attendance model now requires libraryId, get it from req or token
     const studentId = req.body.studentId;
+    const libraryId = req.body.libraryId || req.libraryId; // adjust as per your middleware
+
+    // Build filter according to new model
+    let filter = { student: studentId };
+    if (libraryId) filter.libraryId = libraryId;
+
     const attendance = await attendanceModel
-      .find({ student: studentId })
+      .find(filter)
       .sort({ date: -1 });
+
     res.status(200).json({ success: true, attendance });
   } catch (error) {
     console.log(error);
@@ -98,8 +109,9 @@ const getStudentAttendance = async (req, res) => {
 // Admin views attendance for a student or all students
 const getAdminAttendance = async (req, res) => {
   try {
+    const libraryId = req.libraryId;
     const { studentId, date } = req.query;
-    let filter = {};
+    let filter = { libraryId };
     if (studentId) filter.student = studentId;
     if (date) {
       const d = new Date(date);

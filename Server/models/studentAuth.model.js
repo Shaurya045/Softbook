@@ -8,11 +8,14 @@ const studentAuthSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    phone: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
   },
   { timestamps: true }
 );
+
+// Add compound unique index for phone and student
+studentAuthSchema.index({ phone: 1, student: 1 }, { unique: true });
 
 const studentAuthModel = mongoose.model("studentAuth", studentAuthSchema);
 export default studentAuthModel;

@@ -4,7 +4,8 @@ import { Context } from "./Context";
 import { useEffect, useState } from "react";
 
 const ContextProvider = (props) => {
-  const backendURL = "https://softbook-backend.onrender.com/api/v1/";
+  const backendURL = "http://192.168.0.106:3000/api/v1/";
+  // const backendURL = "https://softbook-backend.onrender.com/api/v1/";
 
   const [theme, setTheme] = useState(() => {
     // Default to dark if nothing is set
@@ -108,6 +109,17 @@ const ContextProvider = (props) => {
     setId(libraryId);
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (
+      !studentData ||
+      Object.keys(studentData).length === 0 ||
+      !studentData._id
+    ) {
+      setToken("");
+      localStorage.removeItem("token");
+    }
+  }, [studentData]);
 
   const contextValue = {
     backendURL,

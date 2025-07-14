@@ -19,7 +19,7 @@ function ProtectedLayout() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="py-[30px] px-[30px] sm:px-[50px] w-full h-screen overflow-y-auto">
+      <div className="py-[30px] px-[20px] sm:px-[50px] w-full h-screen overflow-y-auto">
         <Outlet />
       </div>
     </div>
