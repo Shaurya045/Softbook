@@ -31,7 +31,6 @@ const ContextProvider = (props) => {
       });
       if (response.data.success) {
         setAdminsData(response.data.admins || []);
-        // console.log(response.data);
       }
     } catch (err) {
       console.error("Error fetching attendance:", err);
