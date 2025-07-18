@@ -4,8 +4,8 @@ import { Context } from "./Context";
 import { useEffect, useState } from "react";
 
 const ContextProvider = (props) => {
-  const backendURL = "http://192.168.0.106:3000/api/v1/";
-  // const backendURL = "https://softbook-backend.onrender.com/api/v1/";
+  // const backendURL = "http://192.168.0.106:3000/api/v1/";
+  const backendURL = "https://softbook-backend.onrender.com/api/v1/";
 
   const [theme, setTheme] = useState(() => {
     // Default to dark if nothing is set
