@@ -8,7 +8,6 @@ const ContextProvider = (props) => {
   const backendURL = "https://softbook-backend.onrender.com/api/v1/";
 
   const [theme, setTheme] = useState(() => {
-    // Default to dark if nothing is set
     const savedTheme = localStorage.getItem("theme");
     return savedTheme ? savedTheme : "dark";
   });
@@ -23,7 +22,6 @@ const ContextProvider = (props) => {
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
-    // Always set dark mode by default if not set
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "dark");
       setTheme("dark");
