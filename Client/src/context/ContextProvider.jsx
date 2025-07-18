@@ -1,4 +1,3 @@
-// import axios from "axios";
 import axios from "axios";
 import { Context } from "./Context";
 import { useEffect, useState } from "react";
@@ -23,7 +22,6 @@ const ContextProvider = (props) => {
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
-    // Always set dark mode by default if not set
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "dark");
       setTheme("dark");
