@@ -13,6 +13,7 @@ import PublicLayout from "./layout/PublicLayout.jsx";
 import ProtectedLayout from "./layout/ProtectedLayout.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import IndividualAdmin from "./pages/IndividualAdmin.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
       </Route>
       <Route element={<ProtectedLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin/:id" element={<IndividualAdmin />} />
       </Route>
     </Route>
   )

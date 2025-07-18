@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Context } from "../context/Context";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Spinner from "../components/Spinner";
 
 function AddSeats() {
   const { token, backendURL } = useContext(Context);
@@ -11,8 +12,9 @@ function AddSeats() {
     seatNo: "",
   });
   const [selectShift, setSelectShift] = useState("Morning");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState("06:00");
+  const [endTime, setEndTime] = useState("14:00");
+  const [loading, setLoading] = useState(false);
 
   const onChangeHandler = (e) => {
     const name = e.target.name;
@@ -33,7 +35,7 @@ function AddSeats() {
       shift: shiftString,
       seatNo: Number(data.seatNo),
     };
-
+    setLoading(true);
     try {
       const response = await axios.post(`${backendURL}seat/add`, payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -58,12 +60,15 @@ function AddSeats() {
       } else {
         toast.error("Failed to add seat. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col w-full justify-center items-start gap-8 ">
-      <h1 className="text-[30px] font-semibold ">Add Seats</h1>
+    <div className="flex flex-col w-full justify-center items-start gap-6 sm:gap-8 ">
+      {loading && <Spinner />}
+      <h1 className="text-[22px] sm:text-[30px] font-semibold ">Add Seats</h1>
 
       <form
         className="flex flex-col gap-[30px] w-full "
@@ -86,7 +91,7 @@ function AddSeats() {
             <p className="text-[16px] font-semibold pl-[3px] ">Add Shift</p>
             <select
               id="shift-select"
-              className="bg-[#374151] text-white px-3 py-3 rounded-lg focus:outline-none "
+              className="bg-[#1F2937] text-white px-3 py-3 rounded-lg focus:outline-none "
               value={selectShift}
               onChange={(e) => {
                 setSelectShift(e.target.value);
@@ -101,7 +106,7 @@ function AddSeats() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row gap-[40px]">
-          <div className="flex gap-5 w-full">
+          <div className="flex flex-col sm:flex-row gap-5 w-full">
             <div className="flex flex-col gap-1 w-full">
               <p className="text-[16px] font-semibold pl-[3px] ">
                 Start Timing
@@ -145,7 +150,7 @@ function AddSeats() {
         </div>
         <button
           type="submit"
-          className="bg-[#4BDE80] p-[10px] text-[#101826] text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+          className="bg-[#303A96] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-full lg:w-[500px] cursor-pointer self-center "
         >
           Add Seat
         </button>

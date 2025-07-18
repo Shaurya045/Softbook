@@ -60,12 +60,12 @@ function SeatsView() {
   // }, [shifts]);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between w-full">
+    <div className="flex flex-col gap-5 w-full">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-5 md:gap-2">
         {/* Room Selection */}
-        <div className="flex items-center justify-between bg-[#374151] w-[340px] px-3 py-2 rounded-lg ">
+        <div className="flex items-center justify-between bg-[#374151] w-full md:w-[340px] px-3 py-2 rounded-lg ">
           <label
-            className="text-[14px] font-medium text-[#4BDE80] "
+            className="text-[14px] font-medium text-[#BBD3EE] "
             htmlFor="room-select"
           >
             Select Room
@@ -84,9 +84,9 @@ function SeatsView() {
           </select>
         </div>
         {/* Shift Selection */}
-        <div className="flex items-center justify-between bg-[#374151] w-[340px] px-3 py-2 rounded-lg ">
+        <div className="flex items-center justify-between bg-[#374151] w-full md:w-[340px] px-3 py-2 rounded-lg ">
           <label
-            className="text-[14px] font-medium text-[#4BDE80] "
+            className="text-[14px] font-medium text-[#BBD3EE] "
             htmlFor="shift-select"
           >
             Select Shift
@@ -105,7 +105,8 @@ function SeatsView() {
           </select>
         </div>
       </div>
-      <div className="bg-[#1F2937] flex items-center justify-start flex-wrap gap-9 p-8 rounded-lg ">
+
+      <div className="bg-[#1F2937] flex items-center justify-center sm:justify-start flex-wrap gap-7 sm:gap-9 p-6 sm:p-8 rounded-lg ">
         {filterSeats.map((item, index) => (
           <div
             key={index}
@@ -117,24 +118,29 @@ function SeatsView() {
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-between ">
-        <div className="flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-white rounded-lg px-24 py-2 ">
-          <p className="text-[18px] font-medium text-[#989FAB]">Total Seats</p>
-          <h2 className="text-[40px] font-normal ">{totalSeats}</h2>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+        <div className="flex-1 flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-[#83ABDB] rounded-lg px-8 py-2 min-w-[140px] w-full">
+          <p className="text-[16px] sm:text-[18px] font-medium text-[#989FAB] text-center">
+            Total Seats
+          </p>
+          <h2 className="text-[32px] sm:text-[40px] font-normal text-center">
+            {totalSeats}
+          </h2>
         </div>
-        <div className="flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-white rounded-lg px-24 py-2 ">
-          <p className="text-[18px] font-medium text-[#989FAB]">
+        <div className="flex-1 flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-[#83ABDB] rounded-lg px-8 py-2 min-w-[140px] w-full">
+          <p className="text-[16px] sm:text-[18px] font-medium text-[#989FAB] text-center">
             Seats Occupied
           </p>
-          <h2 className="text-[40px] font-normal text-[#EF4444] ">
+          <h2 className="text-[32px] sm:text-[40px] font-normal text-[#EF4444] text-center">
             {occupiedSeats}
           </h2>
         </div>
-        <div className="flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-white rounded-lg px-24 py-2 ">
-          <p className="text-[18px] font-medium text-[#989FAB]">
+        <div className="flex-1 flex flex-col items-center justify-center bg-[#1F2937] border-[1px] border-[#83ABDB] rounded-lg px-8 py-2 min-w-[140px] w-full">
+          <p className="text-[16px] sm:text-[18px] font-medium text-[#989FAB] text-center">
             Seats Available
           </p>
-          <h2 className="text-[40px] font-normal text-[#4BDE80] ">
+          <h2 className="text-[32px] sm:text-[40px] font-normal text-[#4BDE80] text-center">
             {availableSeats}
           </h2>
         </div>

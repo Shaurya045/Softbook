@@ -7,7 +7,7 @@ import { FaAngleLeft } from "react-icons/fa6";
 function AttendanceTable() {
   const { attendanceData } = useContext(Context);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const totalPages = Math.ceil(attendanceData.length / itemsPerPage);
   const paginatedItems = attendanceData.slice(
@@ -74,6 +74,16 @@ function AttendanceTable() {
             of <span className=" font-medium">{totalPages}</span> Pages
           </div>
           <div className="flex gap-2">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(e.target.value)}
+              className="text-[#989FAB] bg-[#374151] rounded px-3 py-1 outline-none "
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
             <button
               className={`px-3 py-1 rounded border bg-[#374151] hover:bg-[#989FAB] disabled:opacity-50 cursor-pointer`}
               onClick={() => goToPage(currentPage - 1)}

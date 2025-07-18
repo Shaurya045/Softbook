@@ -4,6 +4,7 @@ import studentModel from "../models/student.model.js";
 import seatModel from "../models/seat.model.js";
 import attendanceModel from "../models/attendance.model.js";
 import studentAuthModel from "../models/studentAuth.model.js";
+import paymentModel from "../models/payment.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
 const login = async (req, res) => {
@@ -79,6 +80,9 @@ const deleteAdmin = async (req, res) => {
     if (studentIds.length > 0) {
       await studentAuthModel.deleteMany({ student: { $in: studentIds } });
     }
+
+    // Delete all payments for this library
+    await paymentModel.deleteMany({ libraryId });
 
     // Helper function to extract Cloudinary public_id from URL
     function getCloudinaryPublicId(url) {

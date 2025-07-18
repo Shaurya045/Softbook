@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { images } from "../assets/assets";
+import { IoMdCloudUpload } from "react-icons/io";
 import BookSeat from "../components/BookSeat";
 
 function NewAdmission() {
@@ -48,10 +48,10 @@ function NewAdmission() {
           setImage={setImage}
         />
       ) : (
-        <div className="flex flex-col w-full justify-center items-start gap-8 ">
-          <h1 className="text-[30px] font-semibold ">New Admission</h1>
+        <div className="flex flex-col w-full justify-center items-start gap-6 sm:gap-8 ">
+          <h1 className="text-[22px] sm:text-[30px] font-semibold ">New Admission</h1>
           <div className=" w-full sm:w-[80% rounded-[10px] flex flex-col gap-6 ">
-            <h1 className=" text-2xl font-semibold  ">Student Credentials</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold  ">Student Credentials</h1>
 
             <form
               className="flex flex-col gap-[25px]"
@@ -211,7 +211,7 @@ function NewAdmission() {
                   </p>
                   {idUpload ? (
                     <div className="flex items-center gap-3">
-                      <span className="text-[#4BDE80]">
+                      <span className="text-[#83ABDB]">
                         {typeof idUpload === "string"
                           ? idUpload
                           : idUpload.name}
@@ -270,11 +270,17 @@ function NewAdmission() {
                   Student Photo
                 </p>
                 <label htmlFor="image">
-                  <img
-                    className="w-[120px] cursor-pointer"
-                    src={image ? URL.createObjectURL(image) : images.upload}
-                    alt="upload_icon"
-                  />
+                  {image ? (
+                    <img
+                      className="w-[120px] rounded-[10px] cursor-pointer"
+                      src={image ? URL.createObjectURL(image) : ""}
+                      alt="upload_icon"
+                    />
+                  ) : (
+                    <div className="w-[120px] h-[120px] rounded-[10px] cursor-pointer bg-[#1F2937] flex items-center justify-center ">
+                      <IoMdCloudUpload size={35} />
+                    </div>
+                  )}
                 </label>
                 <input
                   onChange={(e) => setImage(e.target.files[0])}
@@ -287,7 +293,7 @@ function NewAdmission() {
 
               <button
                 type="submit"
-                className="bg-[#4BDE80] p-[10px] text-[#101826] text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+                className="bg-[#303A96] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-full lg:w-[500px] cursor-pointer self-center "
               >
                 Proceed to Seat Selection
               </button>

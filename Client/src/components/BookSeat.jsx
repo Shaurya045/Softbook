@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
-import PDF2 from "./PDF2";
 import { IoArrowBack } from "react-icons/io5";
-import axios from "axios"; // You need to import axios
+import axios from "axios";
 import { Context } from "../context/Context";
 import { toast } from "react-toastify";
+import Confirmation from "./Confirmation";
+import Spinner from "./Spinner";
 
 function capitalize(str) {
   if (!str) return "";
@@ -28,6 +29,7 @@ function BookSeat({
   const [seat, setSeat] = useState();
   const [filterSeats, setFilterSeats] = useState([]);
   const [studentData, setStudentData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setData((prev) => ({
@@ -48,6 +50,7 @@ function BookSeat({
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (seat && room && shift) {
+      setLoading(true);
       try {
         const formData = new FormData();
         if (data && typeof data === "object") {
@@ -64,8 +67,6 @@ function BookSeat({
           formData.append("idUpload", idUpload);
         }
 
-        // console.log(data);
-
         const response = await axios.post(
           `${backendURL}students/admission`,
           formData,
@@ -77,16 +78,13 @@ function BookSeat({
           }
         );
 
-        // Check if the response indicates success (both string and boolean values)
         if (
           response.data.success === "true" ||
           response.data.success === true
         ) {
           toast.success(response.data.message);
-          // console.log(response.data.student);
           setStudentData(response.data.student);
           setShowPDF(true);
-          // Reset form data after successful submission
           setData({
             studentName: "",
             fatherName: "",
@@ -110,7 +108,6 @@ function BookSeat({
         console.error("Error submitting form:", error);
         if (error.response) {
           console.error("Error response:", error.response.data);
-          // Check for specific error messages from the backend
           if (error.response.data.error) {
             toast.error(error.response.data.error);
           } else if (error.response.data.message) {
@@ -121,6 +118,8 @@ function BookSeat({
         } else {
           toast.error("An error occurred while submitting the form.");
         }
+      } finally {
+        setLoading(false);
       }
     } else {
       toast.error("You missed to select seat/room/shift");
@@ -129,34 +128,43 @@ function BookSeat({
 
   return (
     <>
+      {loading && <Spinner />}
       {showPDf ? (
-        <PDF2 studentData={studentData} setShowPDF={setShowPDF} />
+        <Confirmation studentData={studentData} setShowPDF={setShowPDF} />
       ) : (
-        <div className="flex flex-col w-full justify-center items-start gap-9 ">
-          <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col w-full justify-center items-start gap-6 sm:gap-9 ">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-2 w-full">
+            <div
+              onClick={() => setShowSeats(false)}
+              className="sm:hidden flex w-[150px] bg-[#477CBF] text-white p-[10px] rounded-[10px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 "
+            >
+              <IoArrowBack size={16} />
+              <p className="text-[16px] font-semibold">Back to Form</p>
+            </div>
             <div className="flex flex-col ">
-              <h1 className="text-[30px] font-semibold ">Seat Selection</h1>
-              <h1 className="text-[25px] text-[#757C89] font-semibold mt-[-5px] ">
+              <h1 className="text-[22px] sm:text-[30px] font-semibold ">Seat Selection</h1>
+              <h1 className="text-[18px] sm:text-[25px] text-[#757C89] font-semibold mt-[-5px] ">
                 Select a room, shift and seat
               </h1>
             </div>
             <div
               onClick={() => setShowSeats(false)}
-              className="flex w-[150px] bg-[#4BDE80] text-[#101826] p-[10px] rounded-[10px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 "
+              className="hidden sm:flex w-[150px] bg-[#477CBF] text-white p-[10px] rounded-[10px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 "
             >
               <IoArrowBack size={16} />
               <p className="text-[16px] font-semibold">Back to Form</p>
             </div>
           </div>
+
           <form
             className="flex flex-col gap-5 w-full"
             onSubmit={onSubmitHandler}
           >
-            <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-5 md:gap-2">
               {/* Room Selection */}
-              <div className="flex items-center justify-between bg-[#374151] w-[340px] px-3 py-2 rounded-lg ">
+              <div className="flex items-center justify-between bg-[#374151] w-full md:w-[340px] px-3 py-2 rounded-lg ">
                 <label
-                  className="text-[14px] font-medium text-[#4BDE80] "
+                  className="text-[14px] font-medium text-[#83ABDB] "
                   htmlFor="room-select"
                 >
                   Select Room
@@ -178,9 +186,9 @@ function BookSeat({
                 </select>
               </div>
               {/* Shift Selection */}
-              <div className="flex items-center justify-between bg-[#374151] w-[340px] px-3 py-2 rounded-lg ">
+              <div className="flex items-center justify-between bg-[#374151] w-full md:w-[340px] px-3 py-2 rounded-lg ">
                 <label
-                  className="text-[14px] font-medium text-[#4BDE80] "
+                  className="text-[14px] font-medium text-[#83ABDB] "
                   htmlFor="shift-select"
                 >
                   Select Shift
@@ -202,7 +210,8 @@ function BookSeat({
                 </select>
               </div>
             </div>
-            <div className="bg-[#1F2937] flex items-center justify-start flex-wrap gap-9 p-8 rounded-lg ">
+
+            <div className="bg-[#1F2937] flex items-center justify-center sm:justify-start flex-wrap gap-7 sm:gap-9 p-6 sm:8 rounded-lg ">
               {filterSeats.map((item) => (
                 <div
                   key={item._id || item.seatNo}
@@ -229,9 +238,10 @@ function BookSeat({
                 </div>
               ))}
             </div>
+
             <button
               type="submit"
-              className="bg-[#4BDE80] p-[10px] text-[#101826] text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+              className="p-[10px] bg-[#303A96] text-white text-[20px] font-semibold rounded-[10px] w-full md:w-[500px] cursor-pointer self-center "
             >
               {" "}
               Confirm Seat

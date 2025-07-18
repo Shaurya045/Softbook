@@ -106,17 +106,31 @@ const updateLocation = async (req, res) => {
 
 const updateSubscription = async (req, res) => {
   try {
-    const { adminId, active, plan, expiresAt } = req.body;
+    const { adminId, active, plan } = req.body;
     if (!adminId) {
       return res
         .status(400)
         .json({ success: false, message: "adminId is required." });
     }
     const updateFields = {};
-    if (typeof active === "boolean")
+
+    // Handle active status and expiresAt logic
+    if (typeof active === "boolean") {
       updateFields["subscription.active"] = active;
+      if (active === true) {
+        // If activating, set expiresAt to today + one month
+        const now = new Date();
+        const nextMonth = new Date(now);
+        nextMonth.setMonth(now.getMonth() + 1);
+        updateFields["subscription.expiresAt"] = nextMonth;
+      } else if (active === false) {
+        // If deactivating, reset expiresAt to null (default)
+        updateFields["subscription.expiresAt"] = null;
+      }
+    }
+
     if (plan) updateFields["subscription.plan"] = plan;
-    if (expiresAt) updateFields["subscription.expiresAt"] = expiresAt;
+
     const updatedAdmin = await adminModel.findByIdAndUpdate(
       adminId,
       { $set: updateFields },

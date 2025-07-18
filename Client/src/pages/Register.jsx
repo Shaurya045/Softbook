@@ -120,77 +120,95 @@ function Register() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-screen">
-      <Link to="/" className="flex items-center self-start mt-4 ml-4 z-20">
-        <img className="w-[55px] sm:w-[75px]" src={images.logo} alt="logo" />
-        <img
-          className="w-[160px] sm:w-[233px] "
-          src={images.letterLogo}
-          alt="logo"
-        />
-      </Link>
-      <div className=" flex flex-col justify-center h-full gap-8 mt-[-50px]  ">
-        <div>
-          <h1 className="text-[30px] font-semibold ">Welcome!</h1>
-          <p className="text-[#757C89] ">
-            Sing Up and let us handle your business
+    <div className="flex flex-col items-center gap-5 w-full min-h-screen pb-6 sm:pb-10">
+      {/* Logo Row */}
+      <div className="w-full flex flex-row items-start">
+        <Link
+          to="/"
+          className="flex items-center mt-4 ml-4 z-20"
+        >
+          <img
+            className="w-[50px] sm:w-[55px] md:w-[65px] lg:w-[75px]"
+            src={images.logo}
+            alt="logo"
+          />
+          <img
+            className="w-[140px] sm:w-[160px] md:w-[200px] lg:w-[233px]"
+            src={images.letterLogo}
+            alt="logo"
+          />
+        </Link>
+      </div>
+      {/* Main Card */}
+      <div className="flex flex-col justify-center flex-1 w-full max-w-[600px] px-4 sm:px-8 gap-8 mt-2 sm:mt-[-30px] pb-8">
+        {/* Welcome Text */}
+        <div className="text-center mt-4 sm:mt-0 mb-2 sm:mb-0">
+          <h1 className="text-[22px] sm:text-[30px] font-semibold leading-tight">Welcome!</h1>
+          <p className="text-[#757C89] text-[15px] sm:text-base mt-1">
+            Sign Up and let us handle your business
           </p>
         </div>
         {locationError && (
           <div className="text-red-500 text-center mb-2">{locationError}</div>
         )}
         <form
-          className="flex flex-col gap-[30px] w-full "
+          className="flex flex-col gap-[20px] sm:gap-[28px] w-full"
           onSubmit={onSubmitHandler}
         >
-          <div className="flex flex-col lg:flex-row gap-[40px]">
+          <div className="flex flex-col sm:flex-row gap-[20px] sm:gap-[32px]">
             <div className="flex flex-col gap-1 w-full">
-              <p className="text-[16px] font-semibold pl-[3px] ">Full Name</p>
+              <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
+                Full Name
+              </p>
               <input
                 value={data.name}
                 onChange={onChangeHandler}
                 name="name"
-                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
+                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base"
                 type="text"
                 placeholder="Sanjay Kumar Singh"
                 required
               />
             </div>
             <div className="flex flex-col gap-1 w-full">
-              <p className="text-[16px] font-semibold pl-[3px] ">Email</p>
+              <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
+                Email
+              </p>
               <input
                 value={data.email}
                 onChange={onChangeHandler}
                 name="email"
-                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
+                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base"
                 type="email"
                 placeholder="sanjay123@gmail.com"
                 required
               />
             </div>
           </div>
-          <div className="flex flex-col lg:flex-row gap-[40px]">
+          <div className="flex flex-col sm:flex-row gap-[20px] sm:gap-[32px]">
             <div className="flex flex-col gap-1 w-full">
-              <p className="text-[16px] font-semibold pl-[3px] ">Phone</p>
+              <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
+                Phone
+              </p>
               <input
                 value={data.phone}
                 onChange={onChangeHandler}
                 name="phone"
-                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
+                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base"
                 type="text"
                 placeholder="9876543210"
                 required
               />
             </div>
             <div className="flex flex-col gap-1 w-full">
-              <p className="text-[16px] font-semibold pl-[3px] ">
+              <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
                 Library Name
               </p>
               <input
                 value={data.libraryName}
                 onChange={onChangeHandler}
                 name="libraryName"
-                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
+                className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base"
                 type="text"
                 placeholder="Pratap Library"
                 required
@@ -198,12 +216,14 @@ function Register() {
             </div>
           </div>
           <div className="flex flex-col gap-1 w-full">
-            <p className="text-[16px] font-semibold pl-[3px] ">Address</p>
+            <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
+              Address
+            </p>
             <textarea
               value={data.address}
               onChange={onChangeHandler}
               name="address"
-              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] resize-none"
+              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base resize-none"
               type="text"
               placeholder="Patna, Bihar..."
               rows={2}
@@ -211,12 +231,14 @@ function Register() {
             />
           </div>
           <div className="flex flex-col gap-1 w-full">
-            <p className="text-[16px] font-semibold pl-[3px] ">Password</p>
+            <p className="text-[15px] sm:text-[16px] font-semibold pl-[3px]">
+              Password
+            </p>
             <input
               value={data.password}
               onChange={onChangeHandler}
               name="password"
-              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
+              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] text-[15px] sm:text-base"
               type="password"
               placeholder="password"
               required
@@ -224,17 +246,17 @@ function Register() {
           </div>
           <button
             type="submit"
-            className="bg-[#4BDE80] p-[10px] text-[#101826] text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+            className="bg-[#303A96] p-[10px] text-white text-[18px] sm:text-[20px] font-semibold rounded-[10px] w-full max-w-full cursor-pointer self-center transition-all"
             disabled={!location}
             title={!location ? "Location access required" : ""}
           >
             Sign up
           </button>
         </form>
-        <p>
-          Already have a account?{" "}
+        <p className="text-center text-[15px] sm:text-base mt-4">
+          Already have an account?{" "}
           <span
-            className="cursor-pointer text-[#4BDE80] "
+            className="cursor-pointer text-[#83ABDB] underline"
             onClick={() => navigate("/login")}
           >
             Sign In

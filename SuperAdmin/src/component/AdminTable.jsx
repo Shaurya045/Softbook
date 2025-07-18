@@ -4,13 +4,29 @@ import { IoSearchOutline } from "react-icons/io5";
 import { FaAngleRight } from "react-icons/fa6";
 import { FaAngleLeft } from "react-icons/fa6";
 import { FaWhatsapp } from "react-icons/fa";
+import { RiDeleteBin6Fill } from "react-icons/ri";
+import { FiExternalLink } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+
+function getDueDateStatus(dueDate) {
+  if (!dueDate) return 0;
+  const now = new Date();
+  const due = new Date(dueDate);
+  now.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  const diffTime = due - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
 
 function AdminTable() {
   const { adminsData, backendURL, token, loadAdminsData } = useContext(Context);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [deleteID, setDeleteID] = useState("");
   const itemsPerPage = 10;
 
   const filteredItems = adminsData.filter((item) => {
@@ -61,6 +77,29 @@ function AdminTable() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `${backendURL}superadmin/deleteadmin`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { libraryId: deleteID },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setDeleteID("");
+        setDeleteShow(false);
+        await loadAdminsData();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-row items-center justify-start gap-1.5 w-full bg-[#374151] rounded-lg px-4 py-2 shadow-2xl ">
@@ -77,6 +116,36 @@ function AdminTable() {
           placeholderTextColor="#989FAB"
         />
       </div>
+
+      {deleteShow && (
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[#00000060] ">
+          <div className="bg-[#989FAB] p-5 w-1/3 h-1/3 flex flex-col items-center justify-center gap-6 rounded-xl ">
+            <p className="text-[20px] font-semibold text-center ">
+              Do You Want to Delete{" "}
+              {adminsData.find((item) => item._id === deleteID)?.libraryName ||
+                ""}
+              's Data?
+            </p>
+            <div className="flex w-full items-center justify-center gap-5 ">
+              <button
+                onClick={() => {
+                  setDeleteShow(false);
+                  setDeleteID("");
+                }}
+                className="bg-[#EF4444] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-1/2 cursor-pointer self-center"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="bg-[#4BDE80] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-1/2 cursor-pointer self-center "
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className=" rounded-xl ">
         <table className="w-full text-left border-separate border-spacing-y-2">
@@ -99,9 +168,19 @@ function AdminTable() {
               </tr>
             ) : (
               paginatedItems.map((item, index) => {
-                let rowTextClass = "";
+                let subscriptionTextClass = "";
                 if (!item.subscription.active) {
+                  subscriptionTextClass = "text-red-500";
+                } else {
+                  subscriptionTextClass = "text-green-500";
+                }
+
+                const dueStatus = getDueDateStatus(item.subscription.expiresAt);
+                let rowTextClass = "";
+                if (dueStatus <= 3) {
                   rowTextClass = "text-red-500";
+                } else if (dueStatus <= 7) {
+                  rowTextClass = "text-yellow-400";
                 }
                 return (
                   <tr
@@ -115,7 +194,7 @@ function AdminTable() {
                     <td className="px-4 py-2"> {item.name} </td>
                     <td className="px-4 py-2">{item.phone}</td>
                     <td className="px-4 py-2">{item.libraryName}</td>
-                    <td className="px-4 py-2">
+                    <td className={`px-4 py-2 ${subscriptionTextClass}`}>
                       {item.subscription.active ? "Active" : "Expired"}
                     </td>
                     <td className=" py-2 rounded-r-xl">
@@ -134,19 +213,47 @@ function AdminTable() {
                           value={
                             item.subscription.active ? "Active" : "Expired"
                           }
+                          className="bg-[#1F2937]"
                         >
                           <option value="Active">Active</option>
                           <option value="Expired">Expired</option>
                         </select>
-                        <button className="p-1 hover:bg-[#374151] rounded cursor-pointer">
-                          <FaWhatsapp color="#4BDE80" size={18} />
+
+                        <a
+                          href={`https://wa.me/${item.phone}?text=Dear ${
+                            item.name
+                          }, ${
+                            dueStatus <= 0
+                              ? `this is to inform you that your payment is overdue. Please pay your subscription fees as soon as possible.`
+                              : `this is to inform you that the due date for your library subscription is on the *${new Date(
+                                  item.subscription.expiresAt
+                                ).toLocaleDateString(
+                                  "en-Gb"
+                                )}*. Please pay the subscription fee before the due date to continue using the service.`
+                          }`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="p-1 hover:bg-[#374151] rounded cursor-pointer">
+                            <FaWhatsapp color="#4BDE80" size={18} />
+                          </button>
+                        </a>
+                        <button
+                          onClick={() => {
+                            setDeleteID(item._id);
+                            setDeleteShow(true);
+                          }}
+                          className="p-1 hover:bg-[#374151] rounded cursor-pointer"
+                        >
+                          <RiDeleteBin6Fill color="#EF4444" size={18} />
                         </button>
-                        {/* <Link
-                          to={`/students/${item._id}`}
+                        <Link
+                          to={`/admin/${item._id}`}
                           className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                         >
                           <FiExternalLink color="#989FAB" size={18} />
-                        </Link> */}
+                        </Link>
+                        <p>{dueStatus}</p>
                       </div>
                     </td>
                   </tr>

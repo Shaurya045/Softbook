@@ -3,6 +3,7 @@ import seatModel from "../models/seat.model.js";
 import studentModel from "../models/student.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import studentAuthModel from "../models/studentAuth.model.js";
+import paymentModel from "../models/payment.model.js";
 
 const admission = async (req, res) => {
   try {
@@ -104,6 +105,17 @@ const admission = async (req, res) => {
       libraryId,
     });
 
+    // Create payment record for admission
+    await paymentModel.create({
+      studentId: student._id,
+      libraryId,
+      amount,
+      paymentDate: new Date(),
+      paymentMode,
+      type: "admission",
+      createdBy: req.adminId || null, // If you track which admin did the admission
+    });
+
     // Only after student is created, update seat status and save
     seat.status = "booked";
     seat.studentId = student._id;
@@ -146,7 +158,7 @@ const getStudentbyId = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   try {
-    const { id, room, shift, seatNo, duration, amount } = req.body;
+    const { id, room, shift, seatNo, duration, amount, paymentMode } = req.body;
     if (!id) {
       return res
         .status(400)
@@ -161,6 +173,7 @@ const updateStudent = async (req, res) => {
     }
 
     const updates = {};
+    let isRenewal = false;
     if (room !== undefined) updates.room = room;
     if (shift !== undefined) updates.shift = shift;
     if (seatNo !== undefined) updates.seatNo = seatNo;
@@ -169,8 +182,12 @@ const updateStudent = async (req, res) => {
       let due = student.dueDate ? new Date(student.dueDate) : new Date();
       due.setMonth(due.getMonth() + Number(duration));
       updates.dueDate = due;
+      isRenewal = true;
     }
-    if (amount !== undefined) updates.amount = amount;
+    if (amount !== undefined) {
+      updates.amount = amount;
+      isRenewal = true;
+    }
 
     // Only update seat if seat data is provided
     // Only update seat assignment if the seat, room, or shift is actually being changed
@@ -204,6 +221,7 @@ const updateStudent = async (req, res) => {
         seat.status = "booked";
         seat.studentId = id;
         await seat.save();
+        isRenewal = true;
       }
       // If seat is not changed, do nothing regarding seat assignment
     }
@@ -211,6 +229,20 @@ const updateStudent = async (req, res) => {
     const updatedStudent = await studentModel.findByIdAndUpdate(id, updates, {
       new: true,
     });
+
+    // Create payment record for renewal if relevant fields were updated
+    if (isRenewal && amount && paymentMode) {
+      await paymentModel.create({
+        studentId: updatedStudent._id,
+        libraryId: updatedStudent.libraryId,
+        amount,
+        paymentDate: new Date(),
+        paymentMode,
+        type: "renewal",
+        createdBy: req.adminId || null,
+      });
+    }
+
     res.status(200).json({ success: true, student: updatedStudent });
   } catch (error) {
     console.log(error);

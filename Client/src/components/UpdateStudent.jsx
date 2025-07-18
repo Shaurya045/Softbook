@@ -17,6 +17,7 @@ function UpdateStudent({ setShowEdit, item }) {
   const [seat, setSeat] = useState(item.seatNo);
   const [duration, setDuration] = useState(item.duration);
   const [amount, setAmount] = useState(item.amount);
+  const [paymentMode, setPaymentMode] = useState(item.paymentMode);
 
   const [filterSeats, setFilterSeats] = useState([]);
 
@@ -27,6 +28,7 @@ function UpdateStudent({ setShowEdit, item }) {
     seatNo: seat,
     duration,
     amount,
+    paymentMode,
   };
 
   useEffect(() => {
@@ -66,129 +68,150 @@ function UpdateStudent({ setShowEdit, item }) {
   };
 
   return (
-    <div className="absolute top-0 w-full h-full z-50 flex items-center justify-center ">
-      <div className=" flex flex-col justify-center gap-4 bg-[#374151] p-8 w-1/2 rounded-xl ">
-        <h1 className="text-[30px] font-semibold">Update Student Record</h1>
+    <div className="fixed inset-0 z-50 flex items-start lg:items-center justify-center bg-[#000000cc] w-full h-full overflow-y-auto pt-10 pb-10">
+      <div className=" flex flex-col justify-center gap-3 sm:gap-4 bg-[#374151] p-3 min-[440px]:p-6 sm:p-8 w-9/10 min-[440px]:w-4/5 sm:w-2/3 h-auto lg:h-4/ rounded-xl ">
+        <h1 className="text-[22px] sm:text-[30px] font-semibold">Update Student Record</h1>
         <div className="flex flex-col gap-1 ">
-          <div className="flex items-center gap-4 text-[20px]">
+          <div className="flex items-center gap-4 text-[18px] sm:text-[20px]">
             <h3>Student Name: </h3>
             <h4>{item.studentName}</h4>
           </div>
-          <div className="flex items-center gap-4 text-[20px]">
+          <div className="flex items-center gap-4 text-[18px] sm:text-[20px]">
             <h3>Phone no.: </h3>
             <h4>{item.phone}</h4>
           </div>
         </div>
         <form onSubmit={onSubmitHandler} className="flex flex-col gap-[25px] ">
-          <h2 className="text-[25px] font-semibold">Edit Record</h2>
-          <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg ">
-            <label
-              className="text-[14px] font-medium text-[#4BDE80] "
-              htmlFor="room-select"
-            >
-              Select Room
-            </label>
-            <select
-              id="room-select"
-              className="bg-[#1F2937] text-white px-6  rounded-lg focus:outline-none "
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-              required
-            >
-              {rooms.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg ">
-            <label
-              className="text-[14px] font-medium text-[#4BDE80] "
-              htmlFor="shift-select"
-            >
-              Select Shift
-            </label>
-            <select
-              id="shift-select"
-              className="bg-[#1F2937] text-white px-6 rounded-lg focus:outline-none "
-              value={shift}
-              onChange={(e) => setShift(e.target.value)}
-              required
-            >
-              {shifts.map((s) => (
-                <option key={s} value={capitalize(s)}>
-                  {capitalize(s)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg ">
-            <label
-              className="text-[14px] font-medium text-[#4BDE80] "
-              htmlFor="seat-select"
-            >
-              Available SeatNo
-            </label>
-            <select
-              id="seat-select"
-              className="bg-[#1F2937] text-white px-6 rounded-lg focus:outline-none "
-              value={seat}
-              onChange={(e) => setSeat(e.target.value)}
-              required
-            >
-              {filterSeats
-                .filter(
-                  (s) => s.status === "available" || item.seatNo === s.seatNo
-                )
-                .map((s) => (
-                  <option key={s.seatNo} value={s.seatNo}>
-                    {s.seatNo}
+          <h2 className=" text-[20px] sm:text-[25px] font-semibold">Edit Record</h2>
+          <div className="flex flex-col lg:flex-row items-center gap-5">
+            <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg w-full lg:w-1/2 ">
+              <label
+                className="text-[14px] font-medium text-[#83ABDB] "
+                htmlFor="room-select"
+              >
+                Select Room
+              </label>
+              <select
+                id="room-select"
+                className="bg-[#1F2937] text-white px-6  rounded-lg focus:outline-none "
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                required
+              >
+                {rooms.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
                   </option>
                 ))}
-            </select>
+              </select>
+            </div>
+            <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg  w-full lg:w-1/2">
+              <label
+                className="text-[14px] font-medium text-[#83ABDB] "
+                htmlFor="shift-select"
+              >
+                Select Shift
+              </label>
+              <select
+                id="shift-select"
+                className="bg-[#1F2937] text-white px-6 rounded-lg focus:outline-none "
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                required
+              >
+                {shifts.map((s) => (
+                  <option key={s} value={capitalize(s)}>
+                    {capitalize(s)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex items-center justify-between gap-1 w-full rounded-lg bg-[#1F2937] p-3 ">
-            <p className="text-[16px] font-semibold pl-[3px text-[#4BDE80] ">
-              Duration
-            </p>
-            <input
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              name="duration"
-              className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
-              type="text"
-              placeholder="2"
-              required
-              style={{ "::placeholder": { color: "white" } }}
-            />
+          <div className="flex flex-col lg:flex-row  items-center gap-5">
+            <div className="flex items-center justify-between bg-[#1F2937] px-3 py-3 rounded-lg w-full lg:w-1/2 ">
+              <label
+                className="text-[14px] font-medium text-[#83ABDB] "
+                htmlFor="seat-select"
+              >
+                Available SeatNo
+              </label>
+              <select
+                id="seat-select"
+                className="bg-[#1F2937] text-white px-6 rounded-lg focus:outline-none "
+                value={seat}
+                onChange={(e) => setSeat(e.target.value)}
+                required
+              >
+                {filterSeats
+                  .filter(
+                    (s) => s.status === "available" || item.seatNo === s.seatNo
+                  )
+                  .map((s) => (
+                    <option key={s.seatNo} value={s.seatNo}>
+                      {s.seatNo}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="flex items-center justify-between gap-1 w-full lg:w-1/2 rounded-lg bg-[#1F2937] p-3 ">
+              <p className="text-[16px] font-semibold pl-[3px text-[#83ABDB] ">
+                Duration
+              </p>
+              <input
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                name="duration"
+                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+                type="text"
+                placeholder="2"
+                required
+                style={{ "::placeholder": { color: "white" } }}
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-between gap-1 w-full rounded-lg bg-[#1F2937] p-3 ">
-            <p className="text-[16px] font-semibold pl-[3px text-[#4BDE80] ">
-              Amount
-            </p>
-            <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              name="amount"
-              className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
-              type="text"
-              placeholder="500"
-              required
-              style={{ "::placeholder": { color: "white" } }}
-            />
+          <div className="flex flex-col lg:flex-row  items-center gap-5">
+            <div className="flex items-center justify-between gap-1 w-full lg:w-1/2  rounded-lg bg-[#1F2937] p-3 ">
+              <p className="text-[16px] font-semibold pl-[3px text-[#83ABDB] ">
+                Amount
+              </p>
+              <input
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                name="amount"
+                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+                type="text"
+                placeholder="500"
+                required
+                style={{ "::placeholder": { color: "white" } }}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-1 w-full lg:w-1/2 rounded-lg bg-[#1F2937] p-3 ">
+              <p className="text-[16px] font-semibold pl-[3px text-[#83ABDB] ">
+                Payment Method
+              </p>
+              <select
+                onChange={(e) => setPaymentMode(e.target.value)}
+                className=" outline-none bg-[#1F2937] rounded-[10px] text-white text-right "
+                name="paymentMode"
+                value={paymentMode}
+                required
+              >
+                <option value="Online">Online</option>
+                <option value="Cash">Cash</option>
+              </select>
+            </div>
           </div>
-          <div className="flex items-center gap-6 ">
+          <div className="flex flex-col sm:flex-row items-center gap-6 ">
             <button
               type="button"
               onClick={() => setShowEdit(false)}
-              className="bg-[#EF4444] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+              className="bg-[#EF4444] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-full sm:w-1/2  cursor-pointer self-center "
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-[#4BDE80] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-[500px] cursor-pointer self-center "
+              className="bg-[#477CBF] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-full sm:w-1/2  cursor-pointer self-center "
             >
               Update
             </button>

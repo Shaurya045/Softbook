@@ -3,7 +3,8 @@ import { Context } from "./Context";
 import { useEffect, useState } from "react";
 
 const ContextProvider = (props) => {
-  const backendURL = "https://softbook-backend.onrender.com/api/v1/";
+  const backendURL = "http://localhost:3000/api/v1/";
+  // const backendURL = "https://softbook-backend.onrender.com/api/v1/";
 
   const [theme, setTheme] = useState("dark");
   const [token, setToken] = useState("");
@@ -30,7 +31,7 @@ const ContextProvider = (props) => {
       });
       if (response.data.success) {
         setAdminsData(response.data.admins || []);
-        console.log(response.data.admins[0].subscription.active);
+        // console.log(response.data);
       }
     } catch (err) {
       console.error("Error fetching attendance:", err);

@@ -112,8 +112,9 @@ const ContextProvider = (props) => {
 
   useEffect(() => {
     if (
-      !studentData ||
-      Object.keys(studentData).length === 0 ||
+      studentData &&
+      typeof studentData === "object" &&
+      Object.keys(studentData).length > 0 &&
       !studentData._id
     ) {
       setToken("");

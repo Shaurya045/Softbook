@@ -14,7 +14,7 @@ function PublicLayout() {
   if (loading) return null; // or a loading spinner
 
   return (
-    <div className="w-full h-screen ">
+    <div className="w-full min-h-screen ">
       <Outlet />
     </div>
   );

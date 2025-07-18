@@ -240,31 +240,13 @@ const styles = StyleSheet.create({
 
 // Create Document Component
 const MyDocument = ({ studentData, profileData }) => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const formattedDate = `${day}/${month}/${year}`;
-
-  // Calculate due date (1 month from now)
-  const dueDate = new Date(today);
-  dueDate.setMonth(dueDate.getMonth() + 1);
-  const dueDateFormatted = `${String(dueDate.getDate()).padStart(
-    2,
-    "0"
-  )}/${String(dueDate.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}/${dueDate.getFullYear()}`;
+  // Use toLocaleDateString for formatting dates simply
+  const today = new Date(studentData.createdAt);
+  const formattedDate = today.toLocaleDateString("en-GB");
 
   // Format the due date from props if it exists
   const formatDueDate = (dateString) => {
-    if (!dateString) return dueDateFormatted;
-
-    const date = new Date(dateString);
-    return `${String(date.getDate()).padStart(2, "0")}/${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}/${date.getFullYear()}`;
+    return new Date(dateString).toLocaleDateString("en-GB");
   };
 
   const finalDueDate = formatDueDate(studentData.dueDate);
@@ -456,7 +438,7 @@ const MyDocument = ({ studentData, profileData }) => {
               <Image src={images.check} style={{ width: 10, height: 10 }} />
               <Text style={styles.ruleText}>
                 For any complaints/suggestions contact on this no.
-                9304161888/9835491795.
+                {profileData.phone}.
               </Text>
             </View>
           </View>
@@ -501,6 +483,7 @@ const MyDocument = ({ studentData, profileData }) => {
 
 function PDF2({ studentData }) {
   const { profileData } = useContext(Context);
+
   if (!studentData || !studentData.studentName) {
     return (
       <div className="flex flex-col w-full justify-center items-center gap-9 ">
@@ -522,32 +505,13 @@ function PDF2({ studentData }) {
 
   const studentName = studentData.studentName;
   const phone = 91 + studentData.phone;
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const formattedDate = `${day}/${month}/${year}`;
+  const today = new Date(studentData.createdAt);
+  const formattedDate = today.toLocaleDateString("en-GB");
 
   const fileName = `${studentName}_${formattedDate.replace(/\//g, "-")}.pdf`;
 
   return (
-    <div className="flex flex-col w-full justify-center items-start gap-9 ">
-      <div className="flex justify-between items-center w-full">
-        <div className="flex flex-col ">
-          <h1 className="text-[30px] font-semibold ">Confirmation Page</h1>
-          <h1 className="text-[25px] text-[#757C89] font-semibold mt-[-5px] ">
-            Download your receipt
-          </h1>
-        </div>
-        {/* <div
-          onClick={() => setShowPDF(false)}
-          className="flex w-[150px] bg-[#4BDE80] text-[#101826] p-[10px] rounded-[10px] items-center gap-[10px] cursor-pointer hover:scale-[1.1] transition duration-300 "
-        >
-          <IoArrowBack size={16} />
-          <p className="text-[16px] font-semibold">Back to Form</p>
-        </div> */}
-      </div>
-
+    <div className="flex flex-col w-full justify-center items-start gap-5 sm:gap-9 ">
       <div className="w-full max-w-[1200px] ">
         <h2 className="text-xl font-bold mb-4 text-center text-[#757C89]">
           PDF Preview
@@ -559,38 +523,53 @@ function PDF2({ studentData }) {
         </div>
       </div>
 
-      <div className=" flex flex-col sm:flex-row items-center justify-center w-full gap-[60px]">
-        <PDFDownloadLink
-          document={<MyDocument studentData={studentData} profileData={profileData} />}
-          fileName={fileName}
-        >
-          {({ loading }) => (
-            <button
-              disabled={loading}
-              className="w-[400px] bg-[#374151] text-white p-[10px] rounded-[10px] text-[21px] font-semibold cursor-pointer hover:scale-[1.1] transition duration-300 "
-            >
-              {loading ? "Preparing PDF..." : "Download PDF"}
-            </button>
-          )}
-        </PDFDownloadLink>
+      <div className="flex flex-col sm:flex-row items-center justify-center w-full gap-6 sm:gap-[60px]">
+        <div className="w-full sm:w-[300px] max-w-[400px] flex">
+          <PDFDownloadLink
+            document={
+              <MyDocument studentData={studentData} profileData={profileData} />
+            }
+            fileName={fileName}
+            className="w-full"
+          >
+            {({ loading }) => (
+              <button
+                disabled={loading}
+                className="w-full bg-[#374151] text-white p-[10px] rounded-[10px] text-[18px] sm:text-[21px] font-semibold cursor-pointer hover:scale-[1.05] sm:hover:scale-[1.1] transition duration-300"
+                style={{ minWidth: 0 }}
+              >
+                {loading ? "Preparing PDF..." : "Download PDF"}
+              </button>
+            )}
+          </PDFDownloadLink>
+        </div>
+        <div className="w-full sm:w-[300px] max-w-[400px] flex">
+          <a
+            href={`https://wa.me/${phone}?text=${encodeURIComponent(
+              `Hello ${studentData.studentName},
+Your seat booking at *${profileData.libraryName}* is confirmed.
 
-        <a
-          href={`https://wa.me/${phone}?text=Hello ${studentData.studentName}, your sat booking at Pratap Library is confirmed.
-          // 
-          // Date: ${formattedDate}
-          // Room: ${studentData.room}
-          // Seat: ${studentData.seatNo}
-          // Shift: ${studentData.shift}
-          // 
-          // Thank You! `}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <div className="flex items-center justify-center w-[400px] bg-[#4BDE80] text-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.1] transition duration-300 ">
-            <FaWhatsapp size={30} />
-            <p className="text-[18px] font-semibold">Send on Whatsapp</p>
-          </div>
-        </a>
+*Date:* ${formattedDate}
+*Room:* ${studentData.room}
+*Seat:* ${studentData.seatNo}
+*Shift:* ${studentData.shift}
+
+Thank you!
+Regards,
+${profileData.libraryName}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <div className="flex items-center justify-center w-full bg-[#4BDE80] text-white p-[10px] rounded-[10px] gap-[10px] hover:scale-[1.05] sm:hover:scale-[1.1] transition duration-300">
+              <FaWhatsapp size={24} className="sm:size-[30px]" />
+              <p className="text-[16px] sm:text-[18px] font-semibold">
+                Send on Whatsapp
+              </p>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   );

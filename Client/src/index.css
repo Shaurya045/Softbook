@@ -18,14 +18,14 @@ hr {
 }
 
 ::-webkit-scrollbar-track {
-  background: #6e9e74; /* Background of the track */
+  background: #83ABDB; /* Background of the track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #37d459; /* Scrollbar thumb color */
+  background: #3F62AE; /* Scrollbar thumb color */
   border-radius: 4px; /* Rounded edges */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5af76f; /* Hover effect on thumb */
+  background: #477CBF; /* Hover effect on thumb */
 }

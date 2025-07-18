@@ -9,6 +9,7 @@ import connectCloudinary from "./config/cloudinary.js";
 import StudentAuthRouter from "./routes/studentAuthRoute.js";
 import AttendanceRouter from "./routes/attendanceRoute.js";
 import SuperAdminRouter from "./routes/superAdminRoute.js";
+import PaymentRouter from "./routes/paymentRoute.js";
 
 // config
 config();
@@ -28,6 +29,7 @@ app.use("/api/v1/seat", SeatRouter);
 app.use("/api/v1/studentauth", StudentAuthRouter);
 app.use("/api/v1/attendance", AttendanceRouter);
 app.use("/api/v1/superadmin", SuperAdminRouter);
+app.use("/api/v1/payment", PaymentRouter);
 
 app.get("/", (req, res) => {
   res.send("hello");

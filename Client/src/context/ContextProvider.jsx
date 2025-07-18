@@ -19,6 +19,7 @@ const ContextProvider = (props) => {
   const [rooms, setRooms] = useState([]);
   const [shifts, setShifts] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
+  const [paymentData, setPaymentData] = useState([]);
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
@@ -78,7 +79,7 @@ const ContextProvider = (props) => {
           rooms.add(item.room);
           shifts.add(item.shift);
         });
-        setRooms([...rooms]);
+        setRooms([...rooms].sort((a, b) => a.localeCompare(b)));
         setShifts([...shifts]);
         setSeatData(seats || []);
       }
@@ -100,6 +101,20 @@ const ContextProvider = (props) => {
     }
   };
 
+  const loadPayments = async () => {
+    try {
+      const response = await axios.get(`${backendURL}payment/getpayments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // console.log(response);
+      if (response.data.success) {
+        setPaymentData(response.data.payments || []);
+      }
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+    }
+  };
+
   useEffect(() => {
     if (
       profileData &&
@@ -117,6 +132,7 @@ const ContextProvider = (props) => {
       loadStudentData();
       loadSeatData();
       loadAttendanceData();
+      loadPayments();
     }
   }, [token]);
 
@@ -129,8 +145,9 @@ const ContextProvider = (props) => {
 
   useEffect(() => {
     if (
-      !profileData ||
-      Object.keys(profileData).length === 0 ||
+      profileData &&
+      typeof profileData === "object" &&
+      Object.keys(profileData).length > 0 &&
       !profileData._id
     ) {
       setToken("");
@@ -152,6 +169,7 @@ const ContextProvider = (props) => {
     shifts,
     attendanceData,
     loadStudentData,
+    paymentData,
   };
 
   return (
