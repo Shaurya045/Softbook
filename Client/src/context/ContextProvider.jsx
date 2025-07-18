@@ -7,7 +7,6 @@ const ContextProvider = (props) => {
   const backendURL = "https://softbook-backend.onrender.com/api/v1/";
 
   const [theme, setTheme] = useState(() => {
-    // Default to dark if nothing is set
     const savedTheme = localStorage.getItem("theme");
     return savedTheme ? savedTheme : "dark";
   });
