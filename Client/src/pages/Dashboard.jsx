@@ -11,16 +11,17 @@ function Dashboard() {
 
   const calculateOneMonthIncome = () => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(23, 59, 59, 999);
+
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - 30);
+    startDate.setHours(0, 0, 0, 0);
 
     let total = 0;
     paymentData.forEach((payment) => {
-      // Ensure paymentDate is a Date object
       const paymentDate = new Date(payment.paymentDate);
       if (paymentDate >= startDate && paymentDate <= today) {
-        total += payment.amount;
+        total += Number(payment.amount) || 0;
       }
     });
     setIncome(total);
@@ -29,7 +30,7 @@ function Dashboard() {
   const calculateTotalIncome = () => {
     let total = 0;
     paymentData.forEach((payment) => {
-      total += payment.amount;
+      total += Number(payment.amount) || 0;
     });
     setTotalIncome(total);
   };
@@ -37,6 +38,7 @@ function Dashboard() {
   useEffect(() => {
     calculateTotalIncome();
     calculateOneMonthIncome();
+    console.log(paymentData);
   }, [paymentData]);
 
   return (

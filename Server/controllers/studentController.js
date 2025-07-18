@@ -285,11 +285,9 @@ const deleteStudent = async (req, res) => {
     // Delete student image from Cloudinary
     if (student.image) {
       const imagePublicId = getCloudinaryPublicId(student.image);
-      // console.log("image", imagePublicId);
       if (imagePublicId) {
         try {
-          const result = await cloudinary.uploader.destroy(imagePublicId);
-          // console.log("Cloudinary destroy image result:", result);
+          await cloudinary.uploader.destroy(imagePublicId);
         } catch (err) {
           console.log("Error deleting student image from Cloudinary:", err);
         }
@@ -299,11 +297,9 @@ const deleteStudent = async (req, res) => {
     // Delete student idUpload from Cloudinary
     if (student.idUpload) {
       const idUploadPublicId = getCloudinaryPublicId(student.idUpload);
-      // console.log("id", idUploadPublicId);
       if (idUploadPublicId) {
         try {
-          const result = await cloudinary.uploader.destroy(idUploadPublicId);
-          // console.log("Cloudinary destroy idUpload result:", result);
+          await cloudinary.uploader.destroy(idUploadPublicId);
         } catch (err) {
           console.log("Error deleting student idUpload from Cloudinary:", err);
         }
@@ -320,6 +316,9 @@ const deleteStudent = async (req, res) => {
     await attendanceModel.deleteMany({ student: id });
 
     await studentAuthModel.findOneAndDelete({ student: id });
+
+    // Delete all payment records for this student
+    await paymentModel.deleteMany({ studentId: id });
 
     res.status(200).json({ success: true, message: "Student Deleted" });
   } catch (error) {

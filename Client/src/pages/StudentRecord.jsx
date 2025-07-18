@@ -282,7 +282,7 @@ function StudentRecord() {
                                   />
                                 </button>
                               </a>{" "}
-                              <a href={`${item.phone}`} className="block md:hidden">
+                              <a href={`tel:${item.phone}`} className="block md:hidden">
                                 <button
                                   className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                                   aria-label="Phone"
