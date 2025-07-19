@@ -18,7 +18,9 @@ const ContextProvider = (props) => {
   const [shifts, setShifts] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
   const [paymentData, setPaymentData] = useState([]);
+  // profileData is always an object, never null, to avoid runtime errors in consumers
   const [profileData, setProfileData] = useState({});
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("theme")) {
@@ -38,15 +40,25 @@ const ContextProvider = (props) => {
   };
 
   const loadProfiletData = async () => {
+    setProfileLoaded(false);
     try {
       const response = await axios.get(`${backendURL}admin/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.data.success) {
-        setProfileData(response.data.admin || {});
+      if (
+        response.data.success &&
+        response.data.admin &&
+        response.data.admin._id
+      ) {
+        setProfileData(response.data.admin);
+      } else {
+        setProfileData({});
       }
     } catch (err) {
+      setProfileData({});
       console.error("Error fetching students:", err);
+    } finally {
+      setProfileLoaded(true);
     }
   };
 
@@ -112,16 +124,20 @@ const ContextProvider = (props) => {
     }
   };
 
+  // Handle subscription inactive: only after profileData is loaded and valid
   useEffect(() => {
     if (
+      profileLoaded &&
       profileData &&
+      typeof profileData === "object" &&
+      Object.keys(profileData).length > 0 &&
       profileData.subscription &&
       profileData.subscription.active === false
     ) {
       setToken("");
       localStorage.removeItem("token");
     }
-  }, [profileData?.subscription?.active]);
+  }, [profileLoaded, profileData?.subscription?.active]);
 
   useEffect(() => {
     if (token) {
@@ -130,6 +146,9 @@ const ContextProvider = (props) => {
       loadSeatData();
       loadAttendanceData();
       loadPayments();
+    } else {
+      setProfileData({});
+      setProfileLoaded(false);
     }
   }, [token]);
 
@@ -140,17 +159,19 @@ const ContextProvider = (props) => {
     setLoading(false);
   }, []);
 
+  // Only log out if profileData has been loaded and is empty or missing _id
   useEffect(() => {
     if (
-      profileData &&
-      typeof profileData === "object" &&
-      Object.keys(profileData).length > 0 &&
-      !profileData._id
+      profileLoaded &&
+      (!profileData ||
+        typeof profileData !== "object" ||
+        Object.keys(profileData).length === 0 ||
+        !profileData._id)
     ) {
       setToken("");
       localStorage.removeItem("token");
     }
-  }, [profileData]);
+  }, [profileLoaded, profileData]);
 
   const contextValue = {
     backendURL,
@@ -167,6 +188,8 @@ const ContextProvider = (props) => {
     attendanceData,
     loadStudentData,
     paymentData,
+    loadSeatData,
+    profileLoaded,
   };
 
   return (

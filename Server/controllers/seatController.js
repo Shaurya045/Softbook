@@ -81,14 +81,27 @@ const deleteSeat = async (req, res) => {
     // Accept seat id(s) via body, query, or params
     const { id, ids, room, shift, seatNo, libraryId } = req.body;
 
+    // Helper to check if seat is booked
+    const isSeatBooked = (seat) => {
+      // status: "booked" means seat is booked
+      return seat && seat.status === "booked";
+    };
+
     // Delete by seat id(s)
     if (id) {
-      const deleted = await seatModel.findByIdAndDelete(id);
-      if (!deleted) {
+      const seat = await seatModel.findById(id);
+      if (!seat) {
         return res
           .status(404)
           .json({ success: false, message: "Seat not found" });
       }
+      if (isSeatBooked(seat)) {
+        return res.status(400).json({
+          success: false,
+          message: "Seat is booked and cannot be deleted.",
+        });
+      }
+      await seatModel.findByIdAndDelete(id);
       return res
         .status(200)
         .json({ success: true, message: "Seat deleted successfully" });
@@ -96,7 +109,26 @@ const deleteSeat = async (req, res) => {
 
     // Delete multiple by array of ids
     if (Array.isArray(ids) && ids.length > 0) {
-      const result = await seatModel.deleteMany({ _id: { $in: ids } });
+      // Find all seats
+      const seats = await seatModel.find({ _id: { $in: ids } });
+      let bookedSeats = [];
+      let unbookedIds = [];
+      for (const seat of seats) {
+        if (isSeatBooked(seat)) {
+          bookedSeats.push(seat._id);
+        } else {
+          unbookedIds.push(seat._id);
+        }
+      }
+      if (bookedSeats.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot delete booked seats.`,
+          bookedSeats: bookedSeats,
+        });
+      }
+      // Delete all unbooked seats
+      const result = await seatModel.deleteMany({ _id: { $in: unbookedIds } });
       return res.status(200).json({
         success: true,
         message: `${result.deletedCount} seat(s) deleted successfully`,
@@ -105,17 +137,29 @@ const deleteSeat = async (req, res) => {
 
     // Delete by room, shift, seatNo, libraryId (for more granular deletion)
     if (room && shift && seatNo && libraryId) {
-      const deleted = await seatModel.findOneAndDelete({
+      const seat = await seatModel.findOne({
         room,
         shift,
         seatNo,
         libraryId,
       });
-      if (!deleted) {
+      if (!seat) {
         return res
           .status(404)
           .json({ success: false, message: "Seat not found" });
       }
+      if (isSeatBooked(seat)) {
+        return res.status(400).json({
+          success: false,
+          message: "Seat is booked and cannot be deleted.",
+        });
+      }
+      await seatModel.findOneAndDelete({
+        room,
+        shift,
+        seatNo,
+        libraryId,
+      });
       return res
         .status(200)
         .json({ success: true, message: "Seat deleted successfully" });

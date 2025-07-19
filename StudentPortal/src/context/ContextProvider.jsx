@@ -16,6 +16,7 @@ const ContextProvider = (props) => {
   const [id, setId] = useState("");
   const { libraryId } = useParams();
   const [studentData, setStudentData] = useState({});
+  const [studentLoaded, setStudentLoaded] = useState(false); // Track if studentData has been loaded
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
@@ -55,6 +56,7 @@ const ContextProvider = (props) => {
   }, []);
 
   const loadStudentData = async () => {
+    setStudentLoaded(false);
     try {
       const response = await axios.get(`${backendURL}studentauth/getstudent`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,9 +64,16 @@ const ContextProvider = (props) => {
       if (response.data.success) {
         setStudentData(response.data.student || {});
         setProfileData(response.data.library || {});
+      } else {
+        setStudentData({});
+        setProfileData({});
       }
     } catch (err) {
+      setStudentData({});
+      setProfileData({});
       console.error("Error fetching students:", err);
+    } finally {
+      setStudentLoaded(true);
     }
   };
 
@@ -82,6 +91,7 @@ const ContextProvider = (props) => {
     }
   };
 
+  // Handle subscription inactive: only after profileData is loaded and valid
   useEffect(() => {
     if (
       profileData &&
@@ -91,12 +101,30 @@ const ContextProvider = (props) => {
       setToken("");
       localStorage.removeItem("token");
     }
-  }, [profileData]);
+  }, [profileData?.subscription?.active]);
+
+  // Only log out if studentData has been loaded and is empty or missing _id
+  useEffect(() => {
+    if (
+      studentLoaded &&
+      (!studentData ||
+        typeof studentData !== "object" ||
+        Object.keys(studentData).length === 0 ||
+        !studentData._id)
+    ) {
+      setToken("");
+      localStorage.removeItem("token");
+    }
+  }, [studentLoaded, studentData]);
 
   useEffect(() => {
     if (token) {
       loadStudentData();
       loadAttendanceData();
+    } else {
+      setStudentData({});
+      setProfileData({});
+      setStudentLoaded(false);
     }
   }, [token]);
 
@@ -107,18 +135,6 @@ const ContextProvider = (props) => {
     setId(libraryId);
     setLoading(false);
   }, []);
-
-  useEffect(() => {
-    if (
-      studentData &&
-      typeof studentData === "object" &&
-      Object.keys(studentData).length > 0 &&
-      !studentData._id
-    ) {
-      setToken("");
-      localStorage.removeItem("token");
-    }
-  }, [studentData]);
 
   const contextValue = {
     backendURL,

@@ -1,8 +1,43 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../context/Context";
 
 function Profile() {
-  const { profileData } = useContext(Context);
+  const { profileData, paymentData } = useContext(Context);
+  const [totalIncome, setTotalIncome] = useState();
+  const [income, setIncome] = useState();
+
+  const calculateOneMonthIncome = () => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 30);
+    startDate.setHours(0, 0, 0, 0);
+
+    let total = 0;
+    paymentData.forEach((payment) => {
+      const paymentDate = new Date(payment.paymentDate);
+      if (paymentDate >= startDate && paymentDate <= today) {
+        total += Number(payment.amount) || 0;
+      }
+    });
+    setIncome(total);
+  };
+
+  const calculateTotalIncome = () => {
+    let total = 0;
+    paymentData.forEach((payment) => {
+      total += Number(payment.amount) || 0;
+    });
+    setTotalIncome(total);
+  };
+
+  useEffect(() => {
+    calculateTotalIncome();
+    calculateOneMonthIncome();
+    console.log(paymentData);
+  }, [paymentData]);
+
   return (
     <div className="flex flex-col gap-6 sm:gap-9 w-full">
       <h1 className="text-[22px] sm:text-[30px] font-semibold">Profile</h1>
@@ -79,6 +114,30 @@ function Profile() {
                 <span className="text-red-400 font-semibold">Inactive</span>
               )}
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Revenue Cards Section */}
+      <div className="flex flex-col gap-6 w-full sm:w-auto max-w-full sm:max-w-[400px] md:max-w-[480px] lg:max-w-[520px] xl:max-w-[600px]">
+        <div className="flex items-center justify-center bg-gradient-to-bl from-[#D6D446] via-40% via-[#F591B7] to-[#03C7BD] to-70% p-1 rounded-2xl w-full">
+          <div className="flex flex-col items-center justify-center bg-[#374151] rounded-2xl w-full px-4 py-4 sm:px-10 md:px-14 lg:px-16 xl:px-20">
+            <p className="text-[16px] sm:text-[18px] md:text-[22px] lg:text-[25px] font-medium text-center">
+              Last 30 days Revenue
+            </p>
+            <h2 className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[60px] xl:text-[70px] font-bold text-[#83ABDB] text-center">
+              Rs. {income}
+            </h2>
+          </div>
+        </div>
+        <div className="flex items-center justify-center bg-gradient-to-bl from-[#D6D446] via-40% via-[#F591B7] to-[#03C7BD] to-70% p-1 rounded-2xl w-full">
+          <div className="flex flex-col items-center justify-center bg-[#374151] rounded-2xl w-full px-4 py-4 sm:px-10 md:px-14 lg:px-16 xl:px-20">
+            <p className="text-[16px] sm:text-[18px] md:text-[22px] lg:text-[25px] font-medium text-center">
+              Total Revenue
+            </p>
+            <h2 className="text-[28px] sm:text-[36px] md:text-[48px] lg:text-[60px] xl:text-[70px] font-bold text-[#83ABDB] text-center">
+              Rs. {totalIncome}
+            </h2>
           </div>
         </div>
       </div>

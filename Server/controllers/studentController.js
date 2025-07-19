@@ -158,7 +158,8 @@ const getStudentbyId = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   try {
-    const { id, room, shift, seatNo, duration, amount, paymentMode } = req.body;
+    const { id, room, shift, seatNo, duration, amount, paymentMode, dueDate } =
+      req.body;
     if (!id) {
       return res
         .status(400)
@@ -174,9 +175,13 @@ const updateStudent = async (req, res) => {
 
     const updates = {};
     let isRenewal = false;
+
+    // Handle room, shift, seatNo updates
     if (room !== undefined) updates.room = room;
     if (shift !== undefined) updates.shift = shift;
     if (seatNo !== undefined) updates.seatNo = seatNo;
+
+    // If duration is sent, treat as renewal and update dueDate accordingly
     if (duration !== undefined) {
       updates.duration = duration;
       let due = student.dueDate ? new Date(student.dueDate) : new Date();
@@ -184,15 +189,26 @@ const updateStudent = async (req, res) => {
       updates.dueDate = due;
       isRenewal = true;
     }
+
+    // If amount is sent, treat as renewal
     if (amount !== undefined) {
       updates.amount = amount;
       isRenewal = true;
     }
 
-    // Only update seat if seat data is provided
-    // Only update seat assignment if the seat, room, or shift is actually being changed
-    if (room && shift && seatNo) {
-      // Check if the seat assignment is actually changing
+    // If dueDate is sent (and duration is not), allow direct dueDate update
+    if (dueDate !== undefined && duration === undefined) {
+      updates.dueDate = new Date(dueDate);
+      // Do not set isRenewal, do not create payment, do not update seat
+    }
+
+    // Only update seat if seat data is provided and is actually being changed
+    if (
+      room !== undefined &&
+      shift !== undefined &&
+      seatNo !== undefined &&
+      !(dueDate !== undefined && duration === undefined) // If only dueDate is being updated, skip seat logic
+    ) {
       const isSeatChanged =
         student.room !== room ||
         student.shift !== shift ||
@@ -231,7 +247,7 @@ const updateStudent = async (req, res) => {
     });
 
     // Create payment record for renewal if relevant fields were updated
-    if (isRenewal && amount && paymentMode) {
+    if (isRenewal && amount !== undefined && paymentMode !== undefined) {
       await paymentModel.create({
         studentId: updatedStudent._id,
         libraryId: updatedStudent.libraryId,
