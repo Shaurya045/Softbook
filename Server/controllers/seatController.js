@@ -4,6 +4,17 @@ const addSeat = async (req, res) => {
   try {
     const { room, shift, seatNo, libraryId } = req.body;
 
+    // Parse startTime and endTime from shift string
+    // Example shift: 'Morning (06:00 - 14:00)'
+    let startTime = null, endTime = null;
+    const match = shift.match(/\((\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})\)/);
+    if (match) {
+      startTime = match[1];
+      endTime = match[2];
+    } else {
+      return res.status(400).json({ success: false, message: 'Shift format invalid. Must include time range in format (HH:MM - HH:MM)' });
+    }
+
     // Find the highest seatNo for this room, shift, and libraryId combination
     const highestSeat = await seatModel
       .findOne({
@@ -36,6 +47,8 @@ const addSeat = async (req, res) => {
           seatNo: newSeatNo,
           libraryId,
           status: "available",
+          startTime,
+          endTime
         });
       }
     }

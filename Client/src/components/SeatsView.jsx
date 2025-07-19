@@ -176,7 +176,9 @@ function SeatsView() {
                 }
               }}
               className={`${
-                item.status === "booked" ? "bg-[#EF4444]" : ""
+                item.status === "booked" || item.status === "unavailable"
+                  ? "bg-[#EF4444]"
+                  : ""
               } w-12 h-12 p-4 border-[1px] border-white flex items-center justify-center rounded-lg `}
             >
               {item.seatNo}

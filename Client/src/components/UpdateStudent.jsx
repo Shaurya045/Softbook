@@ -208,7 +208,7 @@ function UpdateStudent({ setShowEdit, item }) {
                 type="date"
                 placeholder="YYYY-MM-DD"
                 style={{ colorScheme: "dark" }}
-                required={!isRenewal}
+                // required={!isRenewal}
               />
             </div>
             <div

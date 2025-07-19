@@ -142,7 +142,9 @@ function BookSeat({
               <p className="text-[16px] font-semibold">Back to Form</p>
             </div>
             <div className="flex flex-col ">
-              <h1 className="text-[22px] sm:text-[30px] font-semibold ">Seat Selection</h1>
+              <h1 className="text-[22px] sm:text-[30px] font-semibold ">
+                Seat Selection
+              </h1>
               <h1 className="text-[18px] sm:text-[25px] text-[#757C89] font-semibold mt-[-5px] ">
                 Select a room, shift and seat
               </h1>
@@ -217,7 +219,7 @@ function BookSeat({
                   key={item._id || item.seatNo}
                   className={`w-12 h-12 p-4 border-[1px] border-white flex items-center justify-center rounded-lg cursor-pointer
                     ${
-                      item.status === "booked"
+                      item.status === "booked" || item.status === "unavailable"
                         ? "bg-[#EF4444] cursor-not-allowed"
                         : item.seatNo === seat
                         ? "bg-[#4BDE80]"
@@ -227,6 +229,9 @@ function BookSeat({
                   onClick={() => {
                     if (item.status === "available") {
                       setSeat(item.seatNo);
+                    } else if (item.status === "unavailable") {
+                      alert("Seat is unavailable");
+                      setSeat();
                     } else {
                       alert("Seat is already booked");
                       setSeat();

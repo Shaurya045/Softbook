@@ -3,14 +3,16 @@ import studentModel from "../models/student.model.js";
 import adminModel from "../models/admin.model.js";
 
 // Helper: Haversine formula
+// Helper: Haversine formula (lat/lng order clarification)
 function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000; // Radius of the earth in meters
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
@@ -22,38 +24,70 @@ const markAttendance = async (req, res) => {
   try {
     const studentId = req.body.studentId;
     const { lat, lng } = req.body;
-    if (!lat || !lng) {
+    if (typeof lat !== "number" || typeof lng !== "number") {
       return res
         .status(400)
         .json({ success: false, message: "Location required." });
     }
     // Get student and their study center (admin)
     const student = await studentModel.findById(studentId);
+    if (!student) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found." });
+    }
     const admin = await adminModel.findById(student.libraryId);
-    if (!admin.location || !admin.location.coordinates) {
+    if (
+      !admin ||
+      !admin.location ||
+      !Array.isArray(admin.location.coordinates)
+    ) {
       return res
         .status(400)
         .json({ success: false, message: "Study center location not set." });
     }
+    // GeoJSON: [lng, lat]
     const [centerLng, centerLat] = admin.location.coordinates;
+
+    // The frontend sends lat/lng as numbers (lat, lng)
+    // The database stores [lng, lat]
+    // So, compare: (lat, lng) from frontend with (centerLat, centerLng) from DB
+
+    // Fix: Ensure all values are numbers and not strings
+    const userLat = Number(lat);
+    const userLng = Number(lng);
+    const dbLat = Number(centerLat);
+    const dbLng = Number(centerLng);
+
+    // Debug: Log values to help diagnose
+    console.log("Student location (from frontend):", userLat, userLng);
+    console.log("Center location (from DB):", dbLat, dbLng);
+
+    // Calculate distance (correct order: lat, lng)
     const distance = getDistanceFromLatLonInMeters(
-      lat,
-      lng,
-      centerLat,
-      centerLng
+      userLat,
+      userLng,
+      dbLat,
+      dbLng
     );
-    if (distance > 100) {
-      // 100 meters radius
+
+    // Debug: Log distance
+    console.log("Distance (meters):", distance);
+
+    const allowedRadius = 200; // meters
+
+    if (distance > allowedRadius) {
       return res.status(400).json({
         success: false,
-        message: "You are not at the study center location.",
+        message: `You are not at the study center location. Distance: ${distance.toFixed(
+          2
+        )} meters (allowed: ${allowedRadius}m)`,
       });
     }
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     const todayISTMidnightUTC = today;
-    // console.log(todayISTMidnightUTC);
 
     // Check if already marked
     const alreadyMarked = await attendanceModel.findOne({
@@ -66,15 +100,15 @@ const markAttendance = async (req, res) => {
         message: "Attendance already marked for today.",
       });
     }
-    // console.log("libraryId",student.libraryId);
-    const a = await attendanceModel.create({
+
+    await attendanceModel.create({
       student: studentId,
       date: todayISTMidnightUTC,
       status: "present",
       markedBy: "student",
       libraryId: student.libraryId, // Add libraryId to the attendance record
     });
-    // console.log("libraryId",a.libraryId);
+
     res
       .status(201)
       .json({ success: true, message: "Attendance marked successfully." });
@@ -95,9 +129,7 @@ const getStudentAttendance = async (req, res) => {
     let filter = { student: studentId };
     if (libraryId) filter.libraryId = libraryId;
 
-    const attendance = await attendanceModel
-      .find(filter)
-      .sort({ date: -1 });
+    const attendance = await attendanceModel.find(filter).sort({ date: -1 });
 
     res.status(200).json({ success: true, attendance });
   } catch (error) {

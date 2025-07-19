@@ -15,8 +15,14 @@ const bookedSeatSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["available", "booked"],
+    enum: ["available", "booked", "unavailable"],
     default: "available",
+  },
+  startTime: {
+    type: String,
+  },
+  endTime: {
+    type: String,
   },
   libraryId: {
     type: mongoose.Schema.Types.ObjectId,
