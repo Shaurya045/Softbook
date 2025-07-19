@@ -37,7 +37,7 @@ function NavbarHome() {
       {/* Desktop Button */}
       <Link
         to="/register"
-        className="hidden xl:block bg-[#303A96] px-6 lg:px-8 py-2 lg:py-3 text-[18px] lg:text-[20px] text-white rounded transition hover:bg-[#232a6b]"
+        className="hidden xl:block bg-gradient-to-r from-[#D6D446] via-[#F591B7] to-[#03C7BD] font-semibold px-6 lg:px-8 py-2 lg:py-3 text-[18px] lg:text-[20px] text-white rounded transition hover:bg-[#232a6b]"
       >
         <span>Get One for Yourself</span>
       </Link>
