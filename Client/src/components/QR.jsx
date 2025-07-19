@@ -18,7 +18,7 @@ function QR() {
         <QRCode
           className="rounded-xl"
           size={Math.min(300, window.innerWidth * 0.7)}
-          value={`https://ef1b79320c38.ngrok-free.app/${profileData._id}/attendance`}
+          value={`https://sooftbookstudent.vercel.app/${profileData._id}/attendance`}
           style={{
             width: "100%",
             height: "auto",
