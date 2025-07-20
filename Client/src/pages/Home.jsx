@@ -68,7 +68,7 @@ function Home() {
         <div className="w-full min-h-screen flex items-center justify-center  z-10">
           <div className="flex flex-col items-center gap-6 w-full px-2 sm:px-4">
             <div className="flex flex-col items-center gap-2 w-full">
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-semibold text-center">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-semibold text-center">
                 Make Your Library Smarter
               </h2>
               <h2 className="text-3xl sm:text-5xl md:text-6xl font-semibold bg-gradient-to-r from-[#D6D446] to-[#03C7BD] bg-clip-text text-transparent pb-2 sm:pb-3 md:pb-4 text-center">
