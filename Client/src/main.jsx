@@ -22,6 +22,8 @@ import Login from "./pages/Login.jsx";
 import PublicLayout from "./layout/PublicLayout.jsx";
 import ProtectedLayout from "./layout/ProtectedLayout.jsx";
 import IndividualStudent from "./pages/IndividualStudent.jsx";
+import Terms from "./pages/Terms.jsx";
+import Privacy from "./pages/Privacy.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +32,8 @@ const router = createBrowserRouter(
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Route>
       <Route element={<ProtectedLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
