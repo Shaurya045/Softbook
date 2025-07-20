@@ -74,7 +74,7 @@ const markAttendance = async (req, res) => {
     // Debug: Log distance
     console.log("Distance (meters):", distance);
 
-    const allowedRadius = 200; // meters
+    const allowedRadius = 100; // meters
 
     if (distance > allowedRadius) {
       return res.status(400).json({
