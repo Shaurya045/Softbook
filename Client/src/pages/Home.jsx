@@ -356,12 +356,12 @@ function Home() {
         </div>
         {/* Legal Links */}
         <div className="flex flex-col gap-2 items-center md:items-start">
-          <a href="/terms" className="hover:text-[#D6D446] transition">
+          <Link to="/terms" className="hover:text-[#D6D446] transition">
             Terms and Conditions
-          </a>
-          <a href="/privacy" className="hover:text-[#D6D446] transition">
+          </Link>
+          <Link to="/privacy" className="hover:text-[#D6D446] transition">
             Privacy Policy
-          </a>
+          </Link>
         </div>
       </footer>
     </div>
