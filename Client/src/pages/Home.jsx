@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FaDatabase } from "react-icons/fa";
 import { FaAddressBook } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
+import { TiTick } from "react-icons/ti";
 import { images } from "../assets/assets";
 
 function Home() {
@@ -167,7 +168,7 @@ function Home() {
           {/* Responsive pricing cards */}
           <div className="relative w-full flex flex-col lg:flex-row justify-center items-center gap-6">
             {/* Left Card */}
-            <div className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:mr-6 lg:ml-0 ml-0 mb-6 lg:mb-0 flex-shrink-0">
+            {/* <div className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:mr-6 lg:ml-0 ml-0 mb-6 lg:mb-0 flex-shrink-0">
               <div className="flex flex-col items-center justify-center px-8 py-10 h-full">
                 <h3 className="text-white text-2xl font-semibold mb-2">
                   Basic
@@ -187,28 +188,57 @@ function Home() {
                   Choose Basic
                 </button>
               </div>
-            </div>
+            </div> */}
             {/* Center Card */}
             <div className="w-full sm:w-[90%] lg:w-[340px] max-w-[370px] h-auto bg-[#3B4252] rounded-xl shadow-2xl flex flex-col items-center justify-center px-8 py-12 lg:scale-110 lg:mx-0 mx-auto mb-6 lg:mb-0 flex-shrink-0 z-20">
-              <h3 className="text-white text-2xl font-semibold mb-2">Pro</h3>
+              <h3 className="text-white text-2xl font-semibold mb-2">Early Bird Offer</h3>
               <p className="text-[#989FAB] mb-6 text-center">
-                Best for growing teams and established businesses.
+                Avail the offer price. We're just getting started!
               </p>
-              <div className="text-4xl font-bold text-white mb-4">
-                $29<span className="text-lg font-normal">/mo</span>
+              <div className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
+                <span>₹1000</span>
+                <span className="text-lg font-normal">/mo</span>
+                <span className="text-lg font-normal line-through text-[#989FAB]">₹1500</span>
               </div>
-              <ul className="text-[#989FAB] text-sm mb-6 space-y-2 text-center">
-                <li>✔ Up to 10 Users</li>
-                <li>✔ Advanced Analytics</li>
-                <li>✔ Priority Support</li>
-                <li>✔ Custom Reports</li>
+              <ul className="text-[#989FAB] text-sm mb-6 space-y-2">
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">Add unlimited students, rooms, seats and shifts</p>
+                </li>
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">Maintain and view student record</p>
+                </li>
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">View your income information</p>
+                </li>
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">Generate unlimited receipts</p>
+                </li>
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">Separate student portal for your library</p>
+                </li>
+                <li className="flex items-start">
+                  <TiTick size={22} />
+                  <p className="">Check student attendance</p>
+                </li>
               </ul>
-              <button className="bg-[#D6D446] text-[#232a36] font-semibold px-8 py-2 rounded hover:bg-[#bdbb3a] transition">
-                Choose Pro
-              </button>
+              {/* <button className="bg-[#D6D446] text-[#232a36] font-semibold px-8 py-2 rounded hover:bg-[#bdbb3a] transition">
+                Book Now
+              </button> */}
+              <Link
+                to="/register"
+                className="bg-[#D6D446] text-[#232a36] font-semibold px-8 py-2 rounded hover:bg-[#bdbb3a] transition"
+              >
+                Book Now
+              </Link>
+              
             </div>
             {/* Right Card */}
-            <div className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:ml-6 lg:mr-0 mr-0 flex-shrink-0">
+            {/* <div D6D446 className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:ml-6 lg:mr-0 mr-0 flex-shrink-0">
               <div className="flex flex-col items-center justify-center px-8 py-10 h-full">
                 <h3 className="text-white text-2xl font-semibold mb-2">
                   Enterprise
@@ -227,7 +257,7 @@ function Home() {
                   Contact Sales
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
