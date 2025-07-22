@@ -9,6 +9,7 @@ import { GrGroup } from "react-icons/gr";
 import { RiCalendarCheckLine } from "react-icons/ri";
 import { RiAddBoxLine } from "react-icons/ri";
 import { RxHamburgerMenu } from "react-icons/rx";
+import { MdAddAlarm } from "react-icons/md";
 
 import ThemeToggle from "./ThemeToggle";
 import { Context } from "../context/Context";
@@ -119,6 +120,17 @@ function Sidebar({ isMobileView, mobileOpen, setMobileOpen }) {
                 <p className="max-[900px]:hidden">Add Seats</p>
               </NavLink>
               <NavLink
+                to="/addshifts"
+                className={({ isActive }) =>
+                  `${
+                    isActive ? "bg-[#374151] rounded-lg text-[#83ABDB] " : ""
+                  } flex items-center justify-start gap-[12px] p-[8px_10px] cursor-pointer `
+                }
+              >
+                <MdAddAlarm size={20} />
+                <p className="max-[900px]:hidden">Add Shifts</p>
+              </NavLink>
+              <NavLink
                 to="/attendance"
                 className={({ isActive }) =>
                   `${
@@ -222,6 +234,18 @@ function Sidebar({ isMobileView, mobileOpen, setMobileOpen }) {
               >
                 <RiAddBoxLine size={20} />
                 <p>Add Seats</p>
+              </NavLink>
+              <NavLink
+                to="/addshifts"
+                className={({ isActive }) =>
+                  `${
+                    isActive ? "bg-[#374151] rounded-lg text-[#83ABDB] " : ""
+                  } flex items-center justify-start gap-[12px] p-[8px_10px] cursor-pointer w-full`
+                }
+                onClick={() => setMobileOpen(false)}
+              >
+                <MdAddAlarm size={20} />
+                <p>Add Shifts</p>
               </NavLink>
               <NavLink
                 to="/attendance"

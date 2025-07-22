@@ -15,9 +15,10 @@ const ContextProvider = (props) => {
   const [studentData, setStudentData] = useState([]);
   const [seatData, setSeatData] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [shifts, setShifts] = useState([]);
+  const [shiftData, setShiftData] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
   const [paymentData, setPaymentData] = useState([]);
+  const [bookingData, setBookingData] = useState([]);
   // profileData is always an object, never null, to avoid runtime errors in consumers
   const [profileData, setProfileData] = useState({});
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -83,14 +84,26 @@ const ContextProvider = (props) => {
       if (response.data.success) {
         const seats = response.data.seats;
         let rooms = new Set();
-        let shifts = new Set();
         seats.forEach((item) => {
           rooms.add(item.room);
-          shifts.add(item.shift);
         });
         setRooms([...rooms].sort((a, b) => a.localeCompare(b)));
-        setShifts([...shifts]);
         setSeatData(seats || []);
+      }
+    } catch (err) {
+      console.error("Error fetching seats:", err);
+    }
+  };
+
+  const loadShiftData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}seat/allshifts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        const shifts = response.data.shifts;
+        // console.log(shifts);
+        setShiftData(shifts || []);
       }
     } catch (err) {
       console.error("Error fetching seats:", err);
@@ -124,6 +137,20 @@ const ContextProvider = (props) => {
     }
   };
 
+  const loadBookingData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}booking/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        const bookings = response.data.bookings;
+        setBookingData(bookings || []);
+      }
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+    }
+  };
+
   // Handle subscription inactive: only after profileData is loaded and valid
   useEffect(() => {
     if (
@@ -144,8 +171,10 @@ const ContextProvider = (props) => {
       loadProfiletData();
       loadStudentData();
       loadSeatData();
+      loadShiftData();
       loadAttendanceData();
       loadPayments();
+      loadBookingData();
     } else {
       setProfileData({});
       setProfileLoaded(false);
@@ -184,11 +213,16 @@ const ContextProvider = (props) => {
     studentData,
     seatData,
     rooms,
-    shifts,
+    shiftData,
     attendanceData,
-    loadStudentData,
     paymentData,
+    bookingData,
+    loadStudentData,
     loadSeatData,
+    loadShiftData,
+    loadBookingData,
+    loadPayments,
+    loadAttendanceData,
     profileLoaded,
   };
 

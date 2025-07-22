@@ -3,17 +3,24 @@ import { Context } from "../context/Context";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-function capitalize(str) {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
 function UpdateStudent({ setShowEdit, item }) {
-  const { rooms, shifts, seatData, token, backendURL, loadStudentData } =
-    useContext(Context);
+  const {
+    rooms,
+    shiftData,
+    seatData,
+    bookingData,
+    token,
+    backendURL,
+    loadStudentData,
+    loadBookingData,
+    loadPayments,
+  } = useContext(Context);
 
+  // Set initial shiftId to item's shiftId, or first shift's _id, or "" if none
   const [room, setRoom] = useState(item.room || rooms[0] || "");
-  const [shift, setShift] = useState(capitalize(item.shift || shifts[0]) || "");
+  const [shiftId, setShiftId] = useState(
+    item.shiftId || (shiftData && shiftData.length > 0 ? shiftData[0]._id : "")
+  );
   const [seat, setSeat] = useState(item.seatNo);
   const [duration, setDuration] = useState("");
   const [amount, setAmount] = useState("");
@@ -24,16 +31,35 @@ function UpdateStudent({ setShowEdit, item }) {
   const [filterSeats, setFilterSeats] = useState([]);
 
   useEffect(() => {
-    const filter = seatData.filter((s) => s.room === room && s.shift === shift);
-    setFilterSeats(filter);
-  }, [room, shift, seatData]);
+    const filtered = seatData.filter((item) => item.room === room);
+    setFilterSeats(filtered);
+  }, [room, seatData]);
+
+  // If shiftData loads after mount, update shiftId if it's empty
+  useEffect(() => {
+    if ((!shiftId || shiftId === "") && shiftData && shiftData.length > 0) {
+      setShiftId(shiftData[0]._id);
+    }
+  }, [shiftData, shiftId]);
+
+  const getSeatStatus = (seatId, shiftId) => {
+    // Find booking for this seat and shift
+    const booking = bookingData.find(
+      (b) => b.seatId === seatId && b.shiftId === shiftId
+    );
+    if (booking) {
+      if (booking.status === "booked") return "booked";
+      if (booking.status === "unavailable") return "unavailable";
+    }
+    return "available";
+  };
 
   // Helper to build data object as per backend requirements
   const buildData = () => {
     const data = {
       id: item._id,
       room,
-      shift,
+      shiftId,
       seatNo: seat,
     };
 
@@ -46,8 +72,6 @@ function UpdateStudent({ setShowEdit, item }) {
     } else {
       // Only send dueDate if not renewal and dueDate is set
       if (dueDate) {
-        // The input type="date" gives value as "YYYY-MM-DD"
-        // Backend expects new Date(dueDate), so send as is
         data.dueDate = dueDate;
       }
       // Do not send duration, amount, paymentMode if not renewal
@@ -57,6 +81,13 @@ function UpdateStudent({ setShowEdit, item }) {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    // Validate shiftId before submitting
+    if (!shiftId || shiftId === "") {
+      toast.error("Please select a valid shift.");
+      return;
+    }
+
     const data = buildData();
     try {
       const response = await axios.patch(
@@ -69,6 +100,8 @@ function UpdateStudent({ setShowEdit, item }) {
       if (response.data.success) {
         toast.success("Student updated successfully");
         await loadStudentData();
+        await loadBookingData();
+        await loadPayments();
         setShowEdit(false);
       } else {
         toast.error(response.data.message || "Update failed");
@@ -154,13 +187,17 @@ function UpdateStudent({ setShowEdit, item }) {
               <select
                 id="shift-select"
                 className="bg-[#1F2937] text-white px-6 rounded-lg focus:outline-none "
-                value={shift}
-                onChange={(e) => setShift(e.target.value)}
+                value={shiftId}
+                onChange={(e) => setShiftId(e.target.value)}
                 required
               >
-                {shifts.map((s) => (
-                  <option key={s} value={capitalize(s)}>
-                    {capitalize(s)}
+                {/* Add a disabled option to force user to select if shiftId is empty */}
+                <option value="" disabled>
+                  Select Shift
+                </option>
+                {shiftData.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
                   </option>
                 ))}
               </select>
@@ -182,9 +219,10 @@ function UpdateStudent({ setShowEdit, item }) {
                 required
               >
                 {filterSeats
-                  .filter(
-                    (s) => s.status === "available" || item.seatNo === s.seatNo
-                  )
+                  .filter((s) => {
+                    const status = getSeatStatus(s._id, shiftId);
+                    return status === "available" || item.seatNo === s.seatNo;
+                  })
                   .map((s) => (
                     <option key={s.seatNo} value={s.seatNo}>
                       {s.seatNo}
@@ -204,7 +242,7 @@ function UpdateStudent({ setShowEdit, item }) {
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 name="dueDate"
-                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-gray-400"
                 type="date"
                 placeholder="YYYY-MM-DD"
                 style={{ colorScheme: "dark" }}
@@ -223,11 +261,10 @@ function UpdateStudent({ setShowEdit, item }) {
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 name="duration"
-                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-gray-400"
                 type="text"
                 placeholder="2"
                 required={isRenewal}
-                style={{ "::placeholder": { color: "white" } }}
               />
             </div>
           </div>
@@ -244,11 +281,10 @@ function UpdateStudent({ setShowEdit, item }) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 name="amount"
-                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-white"
+                className="outline-none bg-[#1F2937] rounded-[10px] text-white text-right placeholder-gray-400"
                 type="text"
                 placeholder="500"
                 required={isRenewal}
-                style={{ "::placeholder": { color: "white" } }}
               />
             </div>
             <div className="flex items-center justify-between gap-1 w-full lg:w-1/2 rounded-lg bg-[#1F2937] p-3 ">

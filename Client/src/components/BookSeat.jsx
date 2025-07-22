@@ -6,11 +6,6 @@ import { toast } from "react-toastify";
 import Confirmation from "./Confirmation";
 import Spinner from "./Spinner";
 
-function capitalize(str) {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
 function BookSeat({
   data,
   setData,
@@ -22,10 +17,20 @@ function BookSeat({
   setIdUpload,
   setImage,
 }) {
-  const { rooms, shifts, seatData, token, backendURL } = useContext(Context);
+  const {
+    rooms,
+    shiftData,
+    seatData,
+    bookingData,
+    token,
+    backendURL,
+    loadStudentData,
+    loadBookingData,
+    loadPayments,
+  } = useContext(Context);
 
   const [room, setRoom] = useState(rooms[0] || "");
-  const [shift, setShift] = useState(capitalize(shifts[0]) || "");
+  const [shiftId, setShiftId] = useState(shiftData[0]?._id || "");
   const [seat, setSeat] = useState();
   const [filterSeats, setFilterSeats] = useState([]);
   const [studentData, setStudentData] = useState({});
@@ -35,21 +40,31 @@ function BookSeat({
     setData((prev) => ({
       ...prev,
       room: room,
-      shift: shift,
+      shiftId: shiftId,
       seatNo: seat,
     }));
-  }, [room, shift, seat, setData]);
+  }, [room, shiftId, seat, setData]);
 
   useEffect(() => {
-    const filter = seatData.filter(
-      (item) => item.room === room && item.shift === shift
+    const filtered = seatData.filter((item) => item.room === room);
+    setFilterSeats(filtered);
+  }, [room, seatData]);
+
+  const getSeatStatus = (seatId, shiftId) => {
+    // Find booking for this seat and shift
+    const booking = bookingData.find(
+      (b) => b.seatId === seatId && b.shiftId === shiftId
     );
-    setFilterSeats(filter);
-  }, [room, shift]);
+    if (booking) {
+      if (booking.status === "booked") return "booked";
+      if (booking.status === "unavailable") return "unavailable";
+    }
+    return "available";
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (seat && room && shift) {
+    if (seat && room && shiftId) {
       setLoading(true);
       try {
         const formData = new FormData();
@@ -91,7 +106,7 @@ function BookSeat({
             localAdd: "",
             permanentAdd: "",
             room: "",
-            shift: "",
+            shiftId: "",
             seatNo: "",
             phone: "",
             duration: "",
@@ -101,6 +116,9 @@ function BookSeat({
           });
           setImage(false);
           setIdUpload(false);
+          await loadStudentData();
+          await loadBookingData();
+          await loadPayments();
         } else {
           toast.error(response.data.message || "Admission failed");
         }
@@ -198,15 +216,15 @@ function BookSeat({
                 <select
                   id="shift-select"
                   className="bg-[#374151] text-white px-6 rounded-lg focus:outline-none "
-                  value={shift}
+                  value={shiftId}
                   onChange={(e) => {
-                    setShift(e.target.value);
+                    setShiftId(e.target.value);
                   }}
                   required
                 >
-                  {shifts.map((s) => (
-                    <option key={s} value={capitalize(s)}>
-                      {capitalize(s)}
+                  {shiftData.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}
                     </option>
                   ))}
                 </select>
@@ -214,34 +232,42 @@ function BookSeat({
             </div>
 
             <div className="bg-[#1F2937] flex items-center justify-center sm:justify-start flex-wrap gap-7 sm:gap-9 p-6 sm:8 rounded-lg ">
-              {filterSeats.map((item) => (
-                <div
-                  key={item._id || item.seatNo}
-                  className={`w-12 h-12 p-4 border-[1px] border-white flex items-center justify-center rounded-lg cursor-pointer
-                    ${
-                      item.status === "booked" || item.status === "unavailable"
+              {filterSeats.map((item) => {
+                const status = getSeatStatus(item._id, shiftId);
+                return (
+                  <div
+                    key={item._id}
+                    className={`${
+                      status === "booked" || status === "unavailable"
                         ? "bg-[#EF4444] cursor-not-allowed"
                         : item.seatNo === seat
                         ? "bg-[#4BDE80]"
                         : "bg-[#374151] hover:bg-[#4BDE80]/70"
+                    } w-12 h-12 p-4 border-[1px] border-white flex items-center justify-center rounded-lg cursor-pointer`}
+                    title={
+                      status === "booked"
+                        ? "Booked"
+                        : status === "unavailable"
+                        ? "Unavailable"
+                        : "Available"
                     }
-                  `}
-                  onClick={() => {
-                    if (item.status === "available") {
-                      setSeat(item.seatNo);
-                    } else if (item.status === "unavailable") {
-                      alert("Seat is unavailable");
-                      setSeat();
-                    } else {
-                      alert("Seat is already booked");
-                      setSeat();
-                    }
-                  }}
-                  aria-disabled={item.status === "booked"}
-                >
-                  {item.seatNo}
-                </div>
-              ))}
+                    onClick={() => {
+                      if (status === "available") {
+                        setSeat(item.seatNo);
+                      } else if (status === "unavailable") {
+                        alert("Seat is unavailable");
+                        setSeat();
+                      } else {
+                        alert("Seat is already booked");
+                        setSeat();
+                      }
+                    }}
+                    aria-disabled={status === "booked"}
+                  >
+                    {item.seatNo}
+                  </div>
+                );
+              })}
             </div>
 
             <button

@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import adminModel from "../models/admin.model.js";
 import studentModel from "../models/student.model.js";
 import seatModel from "../models/seat.model.js";
+import shiftModel from "../models/shift.model.js";
+import bookingModel from "../models/booking.model.js";
 import attendanceModel from "../models/attendance.model.js";
 import studentAuthModel from "../models/studentAuth.model.js";
 import paymentModel from "../models/payment.model.js";
@@ -69,41 +71,31 @@ const deleteAdmin = async (req, res) => {
     const adminDeleted = await adminModel.findByIdAndDelete(libraryId);
 
     await seatModel.deleteMany({ libraryId });
+    await shiftModel.deleteMany({ libraryId });
+    await bookingModel.deleteMany({ libraryId }); // Bookings should reference seat/shift, but add this for safety
 
     // Find all students to delete their images and auths
     const students = await studentModel.find({ libraryId });
-
-    // Collect all student IDs
     const studentIds = students.map((s) => s._id);
-
-    // Delete all studentauths for these students BEFORE deleting students
     if (studentIds.length > 0) {
       await studentAuthModel.deleteMany({ student: { $in: studentIds } });
     }
-
-    // Delete all payments for this library
     await paymentModel.deleteMany({ libraryId });
 
-    // Helper function to extract Cloudinary public_id from URL
     function getCloudinaryPublicId(url) {
       if (!url) return null;
       const parts = url.split("/upload/");
       if (parts.length < 2) return null;
-
       const publicPathWithExtension = parts[1];
       const segments = publicPathWithExtension.split("/");
-
       if (/^v\d+$/.test(segments[0])) {
         segments.shift();
       }
-
       const pathWithoutExtension = segments.join("/").split(".")[0];
       return pathWithoutExtension;
     }
 
-    // Delete student images and idUploads from Cloudinary
     for (const student of students) {
-      // Delete student image
       if (student.image) {
         const imagePublicId = getCloudinaryPublicId(student.image);
         if (imagePublicId) {
@@ -117,7 +109,6 @@ const deleteAdmin = async (req, res) => {
           }
         }
       }
-      // Delete student idUpload
       if (student.idUpload) {
         const idUploadPublicId = getCloudinaryPublicId(student.idUpload);
         if (idUploadPublicId) {
@@ -133,9 +124,7 @@ const deleteAdmin = async (req, res) => {
       }
     }
 
-    // Now delete all students
     await studentModel.deleteMany({ libraryId });
-
     await attendanceModel.deleteMany({ libraryId });
 
     if (!adminDeleted) {

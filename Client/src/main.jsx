@@ -24,6 +24,7 @@ import ProtectedLayout from "./layout/ProtectedLayout.jsx";
 import IndividualStudent from "./pages/IndividualStudent.jsx";
 import Terms from "./pages/Terms.jsx";
 import Privacy from "./pages/Privacy.jsx";
+import AddShift from "./pages/AddShift.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
         <Route path="/students" element={<StudentRecord />} />
         <Route path="/students/:id" element={<IndividualStudent />} />
         <Route path="/addseats" element={<AddSeats />} />
+        <Route path="/addshifts" element={<AddShift />} />
         <Route path="/attendance" element={<Attendance />} />
         <Route path="/profile" element={<Profile />} />
       </Route>

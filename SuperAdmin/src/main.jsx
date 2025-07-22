@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
   Route,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
 import PublicLayout from "./layout/PublicLayout.jsx";
 import ProtectedLayout from "./layout/ProtectedLayout.jsx";
@@ -18,6 +19,7 @@ import IndividualAdmin from "./pages/IndividualAdmin.jsx";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<App />}>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route element={<PublicLayout />}>
         <Route path="/login" element={<Login />} />
       </Route>

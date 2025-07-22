@@ -32,8 +32,15 @@ function getDueDateStatus(dueDate) {
 }
 
 function StudentRecord() {
-  const { studentData, backendURL, token, loadStudentData } =
-    useContext(Context);
+  const {
+    studentData,
+    backendURL,
+    token,
+    loadStudentData,
+    loadBookingData,
+    loadPayments,
+    loadAttendanceData,
+  } = useContext(Context);
   const [showEdit, setShowEdit] = useState(false);
   const [item, setItem] = useState({});
   const [search, setSearch] = useState("");
@@ -79,6 +86,9 @@ function StudentRecord() {
         setDeleteID("");
         setDeleteShow(false);
         await loadStudentData();
+        await loadBookingData();
+        await loadAttendanceData();
+        await loadPayments();
       } else {
         toast.error(response.data.message);
       }
@@ -235,6 +245,7 @@ function StudentRecord() {
                                 }}
                                 className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                                 aria-label="Edit"
+                                title="Edit Student"
                               >
                                 <MdModeEdit
                                   color="#83ABDB"
@@ -249,6 +260,7 @@ function StudentRecord() {
                                 }}
                                 className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                                 aria-label="Delete"
+                                title="Delete Student"
                               >
                                 <RiDeleteBin6Fill
                                   color="#EF4444"
@@ -282,7 +294,10 @@ function StudentRecord() {
                                   />
                                 </button>
                               </a>{" "}
-                              <a href={`tel:${item.phone}`} className="block md:hidden">
+                              <a
+                                href={`tel:${item.phone}`}
+                                className="block md:hidden"
+                              >
                                 <button
                                   className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                                   aria-label="Phone"
@@ -298,6 +313,7 @@ function StudentRecord() {
                                 to={`/students/${item._id}`}
                                 className="p-1 hover:bg-[#374151] rounded cursor-pointer"
                                 aria-label="View Details"
+                                title="Student Details"
                               >
                                 <FiExternalLink
                                   color="#989FAB"

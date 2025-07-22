@@ -4,7 +4,8 @@ import { Context } from "../context/Context";
 import QR from "../components/QR";
 
 function Dashboard() {
-  const { studentData, rooms, shifts, profileData } = useContext(Context);
+  const { studentData, rooms, shiftData, seatData, profileData } =
+    useContext(Context);
 
   return (
     <div className="flex flex-col gap-7 sm:gap-9">
@@ -34,7 +35,17 @@ function Dashboard() {
               Total Shifts
             </p>
             <h2 className="text-[36px] sm:text-[50px] font-bold text-center">
-              {shifts.length}
+              {shiftData.length}
+            </h2>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-bl from-[#D6D446] via-40% via-[#F591B7] to-[#03C7BD] to-70% p-1 rounded-2xl min-w-[180px]">
+          <div className="flex flex-col items-center justify-center bg-[#374151] rounded-2xl px-8 py-4 w-full">
+            <p className="text-[18px] sm:text-[20px] font-medium text-center">
+              Total Seats
+            </p>
+            <h2 className="text-[36px] sm:text-[50px] font-bold text-center">
+              {seatData.length}
             </h2>
           </div>
         </div>
