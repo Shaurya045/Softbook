@@ -12,31 +12,77 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import * as QRCodeGenerator from "qrcode";
+import { images } from "../assets/assets";
 
 const styles = StyleSheet.create({
   page: {
-    backgroundColor: "#ffffff",
-    padding: 20,
+    backgroundColor: "#f8fafc",
+    padding: 32,
     width: "100%",
+    minHeight: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 20,
-    height: "100%",
+    // gap: 28,
+    fontFamily: "Helvetica",
+    position: "relative",
   },
-  text: {
-    fontSize: 22,
+  header: {
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#000000",
+    color: "#1e293b",
+    marginBottom: 16,
+    letterSpacing: 0.5,
+    textAlign: "center",
   },
   qrContainer: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
-    marginBottom: 10,
-    width: "400px",
-    height: "400px",
+    marginTop: 18,
+    marginBottom: 18,
+    width: 350,
+    height: 350,
+    backgroundColor: "#fff",
+    border: "2px solid #64748b",
+    borderRadius: 16,
+    boxShadow: "0 2px 8px rgba(30,41,59,0.08)",
+    padding: 12,
+  },
+  qrImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    borderRadius: 12,
+  },
+  stepsContainer: {
+    backgroundColor: "#e0e7ef",
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    marginBottom: 8,
+    width: "95%",
+    boxShadow: "0 1px 4px rgba(100,116,139,0.07)",
+  },
+  stepsTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#334155",
+    marginBottom: 6,
+  },
+  step: {
+    fontSize: 13,
+    color: "#334155",
+    marginBottom: 3,
+    lineHeight: 1.5,
+  },
+  footer: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#000000",
+    marginTop: 18,
+    textAlign: "center",
+    letterSpacing: 0.2,
   },
 });
 
@@ -47,30 +93,73 @@ const MyDocument = ({ profileData, qrCodeDataUrl }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <Text style={styles.header}>Scan this QR for Attendance</Text>
+        <View style={styles.qrContainer}>
+          {qrCodeDataUrl && (
+            <Image src={qrCodeDataUrl} style={styles.qrImage} />
+          )}
+        </View>
+        <View style={styles.stepsContainer}>
+          <Text style={styles.stepsTitle}>Steps:</Text>
+          <Text style={styles.step}>1. Scan the QR code above.</Text>
+          <Text style={styles.step}>
+            2. Register/Signup yourself with the mobile number registered at
+            this library.
+          </Text>
+          <Text style={styles.step}>
+            3. After Register/Signup, login with the mobile number and the
+            password you created.
+          </Text>
+          <Text style={styles.step}>
+            4. After Login, select the second option on the left side and then
+            click "Mark" to mark your attendance.
+          </Text>
+          <Text style={styles.step}>
+            5. From the next day, just scan the QR and click "Mark" to mark your
+            attendance.
+          </Text>
+        </View>
+        <Text style={styles.footer}>{libraryName}</Text>
         <View
           style={{
+            position: "absolute",
+            bottom: 4,
+            right: 4,
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             alignItems: "center",
-            justifyContent: "space-between",
-            height: "100%",
           }}
         >
-          <Text style={styles.text}>Scan this QR for Attendance</Text>
           <View
             style={{
+              width: 20,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <View style={styles.qrContainer}>
-              {qrCodeDataUrl && (
-                <Image src={qrCodeDataUrl} style={styles.qrImage} />
-              )}
-            </View>
+            <Image
+              src={images.logo}
+              style={{ width: "100%", objectFit: "contain" }}
+            />
           </View>
-          <Text style={styles.text}>{libraryName}</Text>
+          <View
+            style={{
+              width: 80,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginLeft: -5,
+            }}
+          >
+            <Image
+              src={images.letterLogoBlack}
+              style={{
+                width: "100%",
+                objectFit: "contain",
+              }}
+            />
+          </View>
         </View>
       </Page>
     </Document>

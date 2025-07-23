@@ -201,7 +201,7 @@ const addShift = async (req, res) => {
 const allShifts = async (req, res) => {
   try {
     const libraryId = req.libraryId;
-    const shifts = await shiftModel.find({ libraryId });
+    const shifts = await shiftModel.find({ libraryId }).sort({ startTime: 1 });
     res.status(200).json({ success: true, shifts });
   } catch (error) {
     console.log(error);

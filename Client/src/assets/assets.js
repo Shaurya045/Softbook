@@ -1,5 +1,6 @@
 import logo from "./icon.png";
 import letterLogo from "./typo.png";
+import letterLogoBlack from "./typoblack.png";
 import upload from "./upload_area.png";
 import add from "./add_icon.png";
 import shaurya from "./iitjee_photo.jpg";
@@ -11,6 +12,7 @@ import phone from "./phone-call.png";
 export const images = {
   logo,
   letterLogo,
+  letterLogoBlack,
   upload,
   add,
   shaurya,

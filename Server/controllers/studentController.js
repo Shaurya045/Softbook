@@ -169,7 +169,9 @@ const admission = async (req, res) => {
 const getAllStudent = async (req, res) => {
   try {
     const libraryId = req.libraryId;
-    const students = await studentModel.find({ libraryId });
+    const students = await studentModel
+      .find({ libraryId })
+      .sort({ createdAt: -1 });
     res.status(201).json({ success: "true", students });
   } catch (error) {
     console.log(error);

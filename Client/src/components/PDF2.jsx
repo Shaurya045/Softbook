@@ -268,7 +268,6 @@ const MyDocument = ({ studentData, profileData }) => {
               <Text style={styles.libraryName}>
                 {profileData.libraryName.toUpperCase()}
               </Text>
-              {/* <Text style={styles.subHeader}>A SELF STUDY CENTER</Text> */}
             </View>
           </View>
           <View
@@ -296,9 +295,6 @@ const MyDocument = ({ studentData, profileData }) => {
                   : "Patna, Bihar, India"}
               </Text>
             </View>
-            {/* <Text style={styles.addressText}>
-              Bank Colony, Baba Chowk, Keshri Nagar, Patna-800024
-            </Text> */}
             <View
               style={{
                 display: "flex",
