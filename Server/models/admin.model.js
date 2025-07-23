@@ -41,7 +41,7 @@ const adminSchema = new mongoose.Schema(
     },
     subscription: {
       active: { type: Boolean, default: false },
-      plan: { type: String, default: "basic" },
+      plan: { type: String, default: "expired" },
       expiresAt: { type: Date, default: null },
     },
   },

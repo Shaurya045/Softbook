@@ -19,7 +19,7 @@ function NewAdmission() {
     duration: "",
     amount: "",
     paymentMode: "Online",
-    idProof: "Aadhar Card",
+    idProof: "None",
   });
 
   const onChangeHandler = (e) => {
@@ -49,9 +49,13 @@ function NewAdmission() {
         />
       ) : (
         <div className="flex flex-col w-full justify-center items-start gap-6 sm:gap-8 ">
-          <h1 className="text-[22px] sm:text-[30px] font-semibold ">New Admission</h1>
+          <h1 className="text-[22px] sm:text-[30px] font-semibold ">
+            New Admission
+          </h1>
           <div className=" w-full sm:w-[80% rounded-[10px] flex flex-col gap-6 ">
-            <h1 className="text-xl sm:text-2xl font-semibold  ">Student Credentials</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold  ">
+              Student Credentials
+            </h1>
 
             <form
               className="flex flex-col gap-[25px]"
@@ -196,8 +200,8 @@ function NewAdmission() {
                     onChange={onChangeHandler}
                     className=" outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] "
                     name="idProof"
-                    required
                   >
+                    <option value="None">None</option>
                     <option value="Aadhar Card">Aadhar Card</option>
                     <option value="Pancard">Pancard</option>
                     <option value="Student ID">Student ID</option>
@@ -230,7 +234,6 @@ function NewAdmission() {
                       className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
                       type="file"
                       id="idUpload"
-                      required
                     />
                   )}
                 </div>

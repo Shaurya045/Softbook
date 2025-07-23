@@ -5,7 +5,7 @@ import { Context } from "../context/Context";
 import Spinner from "../components/Spinner";
 
 function AddShift() {
-  const { token, backendURL } = useContext(Context);
+  const { token, backendURL, loadShiftData } = useContext(Context);
   const [selectShift, setSelectShift] = useState("Morning");
   const [startTime, setStartTime] = useState("06:00");
   const [endTime, setEndTime] = useState("14:00");
@@ -29,6 +29,7 @@ function AddShift() {
         setStartTime("06:00");
         setEndTime("14:00");
         setSelectShift("Morning");
+        await loadShiftData();
       } else {
         toast.error(response.data.message);
       }

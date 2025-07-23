@@ -112,7 +112,7 @@ function BookSeat({
             duration: "",
             amount: "",
             paymentMode: "Online",
-            idProof: "Aadhar Card",
+            idProof: "None",
           });
           setImage(false);
           setIdUpload(false);

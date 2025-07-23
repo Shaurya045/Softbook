@@ -106,30 +106,44 @@ const updateLocation = async (req, res) => {
 
 const updateSubscription = async (req, res) => {
   try {
-    const { adminId, active, plan } = req.body;
+    const { adminId, plan } = req.body;
     if (!adminId) {
       return res
         .status(400)
         .json({ success: false, message: "adminId is required." });
     }
-    const updateFields = {};
-
-    // Handle active status and expiresAt logic
-    if (typeof active === "boolean") {
-      updateFields["subscription.active"] = active;
-      if (active === true) {
-        // If activating, set expiresAt to today + one month
-        const now = new Date();
-        const nextMonth = new Date(now);
-        nextMonth.setMonth(now.getMonth() + 1);
-        updateFields["subscription.expiresAt"] = nextMonth;
-      } else if (active === false) {
-        // If deactivating, reset expiresAt to null (default)
-        updateFields["subscription.expiresAt"] = null;
-      }
+    if (!plan) {
+      return res
+        .status(400)
+        .json({ success: false, message: "plan is required." });
     }
 
-    if (plan) updateFields["subscription.plan"] = plan;
+    const updateFields = {};
+    const planLower = plan.toLowerCase();
+
+    if (planLower === "free") {
+      updateFields["subscription.plan"] = "free";
+      updateFields["subscription.active"] = true;
+      const now = new Date();
+      const expiresAt = new Date(now);
+      expiresAt.setDate(now.getDate() + 15);
+      updateFields["subscription.expiresAt"] = expiresAt;
+    } else if (planLower === "basic") {
+      updateFields["subscription.plan"] = "basic";
+      updateFields["subscription.active"] = true;
+      const now = new Date();
+      const expiresAt = new Date(now);
+      expiresAt.setDate(now.getDate() + 30);
+      updateFields["subscription.expiresAt"] = expiresAt;
+    } else if (planLower === "expired") {
+      updateFields["subscription.plan"] = "expired";
+      updateFields["subscription.active"] = false;
+      updateFields["subscription.expiresAt"] = null;
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid plan value." });
+    }
 
     const updatedAdmin = await adminModel.findByIdAndUpdate(
       adminId,

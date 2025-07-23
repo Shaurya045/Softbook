@@ -96,7 +96,7 @@ function AttendanceTable() {
                 key={i + 1}
                 className={`px-3 py-1 rounded border border-gray-300 cursor-pointer ${
                   currentPage === i + 1
-                    ? "bg-[#4BDE80] text-white"
+                    ? "bg-[#303A96] text-white"
                     : "bg-[#374151]  hover:bg-[#989FAB]"
                 }`}
                 onClick={() => goToPage(i + 1)}

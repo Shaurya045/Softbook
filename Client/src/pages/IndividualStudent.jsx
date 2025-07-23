@@ -115,7 +115,9 @@ function IndividualStudent() {
       )}
 
       {/* Student Info */}
-      <h1 className="text-[22px] sm:text-[30px] font-semibold ">Student Profile</h1>
+      <h1 className="text-[22px] sm:text-[30px] font-semibold ">
+        Student Profile
+      </h1>
       <div className="flex flex-col md:flex-row gap-6 items-start justify-between w-full">
         {/* Left: Student Info */}
         <div className="w-full md:w-4/5 flex flex-col gap-4">
@@ -210,7 +212,7 @@ function IndividualStudent() {
               />
             </div>
           ) : (
-            <div className="w-full h-50 rounded-xl bg-[#23272f] flex items-center justify-center text-gray-400 text-sm">
+            <div className="w-full h-50 rounded-xl bg-[#23272f] flex items-center justify-center text-gray-400 text-sm cursor-pointer">
               No Photo
             </div>
           )}

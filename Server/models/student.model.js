@@ -52,11 +52,9 @@ const studentSchema = new mongoose.Schema(
     },
     idProof: {
       type: String,
-      required: true,
     },
     idUpload: {
       type: String,
-      required: true,
     },
     image: {
       type: String,

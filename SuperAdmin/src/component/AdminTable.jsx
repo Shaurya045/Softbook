@@ -27,7 +27,7 @@ function AdminTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteID, setDeleteID] = useState("");
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const filteredItems = adminsData.filter((item) => {
     if (search === "") return true;
@@ -56,12 +56,12 @@ function AdminTable() {
 
   const handleSubscription = async (e, adminId) => {
     try {
-      const status = e.target.value === "Active" ? true : false;
+      const status = e.target.value;
       const response = await axios.patch(
         `${backendURL}admin/updatesubscription`,
         {
           adminId,
-          active: status,
+          plan: status,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -73,7 +73,7 @@ function AdminTable() {
       }
     } catch (error) {
       console.log(error);
-      toast.erro(error.response.data.message);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -102,43 +102,28 @@ function AdminTable() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-row items-center justify-start gap-1.5 w-full bg-[#374151] rounded-lg px-4 py-2 shadow-2xl ">
-        <IoSearchOutline color="white" size={26} />
-        <input
-          className="bg-transparent text-[20px] text-[#989FAB] outline-none p-1 w-full "
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          type="text"
-          placeholder="Search by student name, room, shift, phone"
-          placeholderTextColor="#989FAB"
-        />
-      </div>
-
       {deleteShow && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[#00000060] ">
-          <div className="bg-[#989FAB] p-5 w-1/3 h-1/3 flex flex-col items-center justify-center gap-6 rounded-xl ">
-            <p className="text-[20px] font-semibold text-center ">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000000cc] w-full h-full overflow-y-auto px-6 pt-10 pb-10 ">
+          <div className="bg-[#374151] p-4 sm:p-6 w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl h-auto flex flex-col items-center justify-center gap-6 rounded-xl mx-2 ">
+            <p className="text-[18px] sm:text-[20px] font-semibold text-center break-words ">
               Do You Want to Delete{" "}
               {adminsData.find((item) => item._id === deleteID)?.libraryName ||
                 ""}
               's Data?
             </p>
-            <div className="flex w-full items-center justify-center gap-5 ">
+            <div className="flex flex-col sm:flex-row w-full items-center justify-center gap-4 sm:gap-5 ">
               <button
                 onClick={() => {
                   setDeleteShow(false);
                   setDeleteID("");
                 }}
-                className="bg-[#EF4444] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-1/2 cursor-pointer self-center"
+                className="bg-[#EF4444] p-2 sm:p-[10px] text-white text-[18px] sm:text-[20px] font-semibold rounded-[10px] w-full sm:w-1/2 cursor-pointer self-center"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="bg-[#4BDE80] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-1/2 cursor-pointer self-center "
+                className="bg-[#477CBF] p-2 sm:p-[10px] text-white text-[18px] sm:text-[20px] font-semibold rounded-[10px] w-full sm:w-1/2 cursor-pointer self-center "
               >
                 Delete
               </button>
@@ -147,59 +132,103 @@ function AdminTable() {
         </div>
       )}
 
-      <div className=" rounded-xl ">
-        <table className="w-full text-left border-separate border-spacing-y-2">
-          <thead>
-            <tr className="text-[#989FAB] text-[16px] font-normal ">
-              <th className="px-4 py-2">Sl. No.</th>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Library Name</th>
-              <th className="px-4 py-2">Subscription</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedItems.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center py-4">
-                  No data found.
-                </td>
-              </tr>
-            ) : (
-              paginatedItems.map((item, index) => {
-                let subscriptionTextClass = "";
-                if (!item.subscription.active) {
-                  subscriptionTextClass = "text-red-500";
-                } else {
-                  subscriptionTextClass = "text-green-500";
-                }
+      <div className="flex flex-row items-center justify-start gap-1.5 w-full bg-[#374151] rounded-lg px-4 py-2 shadow-2xl ">
+        <IoSearchOutline color="white" size={22} className=" block" />
+        <input
+          className="bg-transparent text-[16px] sm:text-[20px] text-[#989FAB] outline-none p-1 w-full "
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
+          type="text"
+          placeholder="Search by admin name, libraryName, phone"
+          placeholderTextColor="#989FAB"
+        />
+      </div>
 
-                const dueStatus = getDueDateStatus(item.subscription.expiresAt);
-                let rowTextClass = "";
-                if (dueStatus <= 3) {
-                  rowTextClass = "text-red-500";
-                } else if (dueStatus <= 7) {
-                  rowTextClass = "text-yellow-400";
+      <div
+        className=" rounded-xl w-full overflow-x-auto mb-6 "
+        style={{
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE 10+
+        }}
+      >
+        <style>
+          {`
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                .hide-scrollbar::-webkit-scrollbar {
+                  display: none;
                 }
-                return (
-                  <tr
-                    key={index}
-                    className={`bg-[#1F2937] text-[14px] px-4 py-2 font-normal align-middle rounded-xl overflow-hidden ${rowTextClass} `}
-                  >
-                    <td className="px-4 py-2 rounded-l-xl">
-                      {" "}
-                      {index + 1 < 10 ? `0${index + 1}` : index + 1}{" "}
-                    </td>
-                    <td className="px-4 py-2"> {item.name} </td>
-                    <td className="px-4 py-2">{item.phone}</td>
-                    <td className="px-4 py-2">{item.libraryName}</td>
-                    <td className={`px-4 py-2 ${subscriptionTextClass}`}>
-                      {item.subscription.active ? "Active" : "Expired"}
-                    </td>
-                    <td className=" py-2 rounded-r-xl">
-                      <div className="flex gap-2 items-center justify-start">
-                        {/* <button
+                /* Hide scrollbar for IE, Edge and Firefox */
+                .hide-scrollbar {
+                  -ms-overflow-style: none;  /* IE and Edge */
+                  scrollbar-width: none;  /* Firefox */
+                }
+              `}
+        </style>
+        <div className="hide-scrollbar" style={{ overflowX: "auto" }}>
+          <table className="min-w-[600px] w-full text-left border-separate border-spacing-y-2">
+            <thead>
+              <tr className="text-[#989FAB] text-[13px] sm:text-[16px] font-normal ">
+                <th className="px-2 sm:px-4 py-2">Sl. No.</th>
+                <th className="px-2 sm:px-4 py-2">Name</th>
+                <th className="px-2 sm:px-4 py-2">Phone</th>
+                <th className="px-2 sm:px-4 py-2">Library Name</th>
+                <th className="px-2 sm:px-4 py-2">Subscription</th>
+                <th className="px-2 sm:px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedItems.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    No data found.
+                  </td>
+                </tr>
+              ) : (
+                paginatedItems.map((item, index) => {
+                  let subscriptionTextClass = "";
+                  if (!item.subscription.active) {
+                    subscriptionTextClass = "text-red-500";
+                  } else {
+                    subscriptionTextClass = "text-green-500";
+                  }
+
+                  const dueStatus = getDueDateStatus(
+                    item.subscription.expiresAt
+                  );
+                  let rowTextClass = "";
+                  if (dueStatus <= 3) {
+                    rowTextClass = "text-red-500";
+                  } else if (dueStatus <= 7) {
+                    rowTextClass = "text-yellow-400";
+                  }
+                  return (
+                    <tr
+                      key={index}
+                      className={`bg-[#1F2937] text-[12px] sm:text-[14px] px-2 sm:px-4 py-2 font-normal align-middle rounded-xl overflow-hidden ${rowTextClass} `}
+                    >
+                      <td className="px-2 sm:px-4 py-2 rounded-l-xl">
+                        {" "}
+                        {index + 1 < 10 ? `0${index + 1}` : index + 1}{" "}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2 break-words max-w-[120px] sm:max-w-none">
+                        {" "}
+                        {item.name}{" "}
+                      </td>
+                      <td className="px-2 sm:px-4 py-2">{item.phone}</td>
+                      <td className="px-2 sm:px-4 py-2 break-words max-w-[120px] sm:max-w-none">
+                        {item.libraryName}
+                      </td>
+                      <td
+                        className={`px-2 sm:px-4 py-2 ${subscriptionTextClass}`}
+                      >
+                        {item.subscription.active ? "Active" : "Expired"}
+                      </td>
+                      <td className=" py-2 rounded-r-xl">
+                        <div className="flex gap-1 sm:gap-2 items-center justify-center flex-wrap">
+                          {/* <button
                           onClick={() => {
                             setShowEdit(true);
                             setItem(item);
@@ -208,74 +237,85 @@ function AdminTable() {
                         >
                           <MdModeEdit color="#4BDE80" size={18} />
                         </button> */}
-                        <select
-                          onChange={(e) => handleSubscription(e, item._id)}
-                          value={
-                            item.subscription.active ? "Active" : "Expired"
-                          }
-                          className="bg-[#1F2937]"
-                        >
-                          <option value="Active">Active</option>
-                          <option value="Expired">Expired</option>
-                        </select>
+                          <select
+                            onChange={(e) => handleSubscription(e, item._id)}
+                            value={item.subscription.plan}
+                            className="bg-[#1F2937] outline-none p-1"
+                          >
+                            <option value="free">Free</option>
+                            <option value="basic">Basic</option>
+                            <option value="expired">Expired</option>
+                          </select>
 
-                        <a
-                          href={`https://wa.me/${item.phone}?text=Dear ${
-                            item.name
-                          }, ${
-                            dueStatus <= 0
-                              ? `this is to inform you that your payment is overdue. Please pay your subscription fees as soon as possible.`
-                              : `this is to inform you that the due date for your library subscription is on the *${new Date(
-                                  item.subscription.expiresAt
-                                ).toLocaleDateString(
-                                  "en-Gb"
-                                )}*. Please pay the subscription fee before the due date to continue using the service.`
-                          }`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <button className="p-1 hover:bg-[#374151] rounded cursor-pointer">
-                            <FaWhatsapp color="#4BDE80" size={18} />
+                          <a
+                            href={`https://wa.me/${item.phone}?text=Dear ${
+                              item.name
+                            }, ${
+                              dueStatus <= 0
+                                ? `this is to inform you that your payment is overdue. Please pay your subscription fees as soon as possible.`
+                                : `this is to inform you that the due date for your library subscription is on the *${new Date(
+                                    item.subscription.expiresAt
+                                  ).toLocaleDateString(
+                                    "en-Gb"
+                                  )}*. Please pay the subscription fee before the due date to continue using the service.`
+                            }`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <button className="p-1 hover:bg-[#374151] rounded cursor-pointer">
+                              <FaWhatsapp color="#4BDE80" size={18} />
+                            </button>
+                          </a>
+                          <button
+                            onClick={() => {
+                              setDeleteID(item._id);
+                              setDeleteShow(true);
+                            }}
+                            className="p-1 hover:bg-[#374151] rounded cursor-pointer"
+                          >
+                            <RiDeleteBin6Fill color="#EF4444" size={18} />
                           </button>
-                        </a>
-                        <button
-                          onClick={() => {
-                            setDeleteID(item._id);
-                            setDeleteShow(true);
-                          }}
-                          className="p-1 hover:bg-[#374151] rounded cursor-pointer"
-                        >
-                          <RiDeleteBin6Fill color="#EF4444" size={18} />
-                        </button>
-                        <Link
-                          to={`/admin/${item._id}`}
-                          className="p-1 hover:bg-[#374151] rounded cursor-pointer"
-                        >
-                          <FiExternalLink color="#989FAB" size={18} />
-                        </Link>
-                        <p>{dueStatus}</p>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                          <Link
+                            to={`/admin/${item._id}`}
+                            className="p-1 hover:bg-[#374151] rounded cursor-pointer"
+                          >
+                            <FiExternalLink color="#989FAB" size={18} />
+                          </Link>
+                          <p>{dueStatus}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
         {/* Pagination Controls */}
-        <div className="flex justify-between items-center px-4 py-3">
-          <div className="text-[#989FAB] text-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-center px-2 sm:px-4 py-3 gap-2">
+          <div className="text-[#989FAB] text-xs sm:text-sm text-center sm:text-left">
             Showing Page{" "}
             <span className=" font-medium">
               {totalPages === 0 ? 0 : currentPage}
             </span>{" "}
             of <span className=" font-medium">{totalPages}</span> Pages
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center justify-center">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(e.target.value)}
+              className="text-[#989FAB] bg-[#374151] rounded px-2 py-1 outline-none text-xs sm:text-sm"
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
             <button
-              className={`px-3 py-1 rounded border bg-[#374151] hover:bg-[#989FAB] disabled:opacity-50 cursor-pointer`}
+              className={`px-2 sm:px-3 py-1 rounded border bg-[#374151] hover:bg-[#989FAB] disabled:opacity-50 cursor-pointer`}
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1 || totalPages === 0}
+              aria-label="Previous Page"
             >
               <FaAngleLeft />
             </button>
@@ -284,7 +324,7 @@ function AdminTable() {
                 key={i + 1}
                 className={`px-3 py-1 rounded border border-gray-300 cursor-pointer ${
                   currentPage === i + 1
-                    ? "bg-[#4BDE80] text-white"
+                    ? "bg-[#303A96] text-white"
                     : "bg-[#374151]  hover:bg-[#989FAB]"
                 }`}
                 onClick={() => goToPage(i + 1)}
@@ -293,9 +333,10 @@ function AdminTable() {
               </button>
             ))}
             <button
-              className={`px-3 py-1 rounded border bg-[#374151]  hover:bg-[#989FAB] disabled:opacity-50 cursor-pointer`}
+              className={`px-2 sm:px-3 py-1 rounded border bg-[#374151] hover:bg-[#989FAB] disabled:opacity-50 cursor-pointer`}
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages || totalPages === 0}
+              aria-label="Next Page"
             >
               <FaAngleRight />
             </button>

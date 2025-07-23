@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Spinner from "../components/Spinner";
 
 function AddSeats() {
-  const { token, backendURL } = useContext(Context);
+  const { token, backendURL, loadSeatData } = useContext(Context);
   const [data, setData] = useState({
     room: "",
     seatNo: "",
@@ -36,6 +36,7 @@ function AddSeats() {
       if (response.data.success) {
         toast.success(response.data.message);
         setData({ room: "", seatNo: "" });
+        await loadSeatData();
       } else {
         toast.error(response.data.message);
       }
