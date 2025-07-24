@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    // gap: 28,
+    gap: 18,
     fontFamily: "Helvetica",
     position: "relative",
   },
@@ -39,15 +39,13 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 18,
-    marginBottom: 18,
     width: 350,
     height: 350,
     backgroundColor: "#fff",
     border: "2px solid #64748b",
     borderRadius: 16,
     boxShadow: "0 2px 8px rgba(30,41,59,0.08)",
-    padding: 12,
+    padding: 6,
   },
   qrImage: {
     width: "100%",
@@ -58,10 +56,8 @@ const styles = StyleSheet.create({
   stepsContainer: {
     backgroundColor: "#e0e7ef",
     borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 8,
-    width: "95%",
+    padding: 14,
+    width: "100%",
     boxShadow: "0 1px 4px rgba(100,116,139,0.07)",
   },
   stepsTitle: {
@@ -80,7 +76,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#000000",
-    marginTop: 18,
     textAlign: "center",
     letterSpacing: 0.2,
   },
@@ -101,22 +96,28 @@ const MyDocument = ({ profileData, qrCodeDataUrl }) => {
         </View>
         <View style={styles.stepsContainer}>
           <Text style={styles.stepsTitle}>Steps:</Text>
-          <Text style={styles.step}>1. Scan the QR code above.</Text>
           <Text style={styles.step}>
-            2. Register/Signup yourself with the mobile number registered at
-            this library.
+            1. Make sure that Location or GPS is enabled on your device.
+          </Text>
+          <Text style={styles.step}>2. Scan the QR code above.</Text>
+          <Text style={styles.step}>
+            3. Allow location access for the site that opens.
           </Text>
           <Text style={styles.step}>
-            3. After Register/Signup, login with the mobile number and the
-            password you created.
+            4. Register or sign up using the mobile number registered at this
+            library.
           </Text>
           <Text style={styles.step}>
-            4. After Login, select the second option on the left side and then
-            click "Mark" to mark your attendance.
+            5. After registering or signing up, log in with your mobile number
+            and the password you created.
           </Text>
           <Text style={styles.step}>
-            5. From the next day, just scan the QR and click "Mark" to mark your
-            attendance.
+            6. After logging in, select the second option on the left side, then
+            click "Mark" to record your attendance.
+          </Text>
+          <Text style={styles.step}>
+            7. From the next day onward, just scan the QR code and click "Mark"
+            to record your attendance.
           </Text>
         </View>
         <Text style={styles.footer}>{libraryName}</Text>
