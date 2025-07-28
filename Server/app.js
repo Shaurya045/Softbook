@@ -11,6 +11,7 @@ import AttendanceRouter from "./routes/attendanceRoute.js";
 import SuperAdminRouter from "./routes/superAdminRoute.js";
 import PaymentRouter from "./routes/paymentRoute.js";
 import BookingRouter from "./routes/bookingRoute.js";
+import CSVRouter from "./routes/csvRoute.js";
 
 // config
 config();
@@ -32,6 +33,7 @@ app.use("/api/v1/attendance", AttendanceRouter);
 app.use("/api/v1/superadmin", SuperAdminRouter);
 app.use("/api/v1/payment", PaymentRouter);
 app.use("/api/v1/booking", BookingRouter);
+app.use("/api/v1/csv", CSVRouter);
 
 app.get("/", (req, res) => {
   res.send("hello");

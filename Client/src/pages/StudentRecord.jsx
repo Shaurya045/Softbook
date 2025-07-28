@@ -12,6 +12,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import UpdateStudent from "../components/UpdateStudent";
 import { Link } from "react-router-dom";
+import { MdDownload } from "react-icons/md";
 
 function getDueDateStatus(dueDate) {
   if (!dueDate) return "normal";
@@ -20,13 +21,14 @@ function getDueDateStatus(dueDate) {
   now.setHours(0, 0, 0, 0);
   due.setHours(0, 0, 0, 0);
   const diffTime = due - now;
+  if (due < now) {
+    return "danger++";
+  }
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   if (diffDays <= 3) {
     return "danger";
   } else if (diffDays <= 7) {
     return "warning";
-  } else if (diffDays < 0) {
-    return "danger++";
   }
   return "normal";
 }
@@ -98,6 +100,29 @@ function StudentRecord() {
     }
   };
 
+  const handleDownloadData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}csv/csvstudentdata`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: "blob", // Important for file download
+      });
+
+      // Create a blob from the response
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], { type: "text/csv" })
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "studentData.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   return (
     <div className=" w-full h-full">
       {showEdit && item && (
@@ -138,20 +163,29 @@ function StudentRecord() {
           Student Record
         </h1>
         <div className="flex flex-col gap-4 sm:gap-6 w-full">
-          {/* Search Bar */}
-          <div className="flex flex-row items-center justify-start gap-2 w-full bg-[#374151] rounded-lg px-2 py-2 sm:px-4 shadow-2xl">
-            <IoSearchOutline color="white" size={22} className=" block" />
-            <input
-              className="bg-transparent text-[16px] sm:text-[20px] text-[#989FAB] outline-none p-1 w-full"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-              type="text"
-              placeholder="Search by student name, room, shift, phone"
-              placeholdertextcolor="#989FAB"
-            />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+            {/* Search Bar */}
+            <div className="flex flex-row items-center justify-start gap-2 w-full sm:w-[60%] md:w-[70%] bg-[#374151] rounded-lg px-2 py-2 sm:px-4 shadow-2xl">
+              <IoSearchOutline color="white" size={22} className=" block" />
+              <input
+                className="bg-transparent text-[16px] sm:text-[20px] text-[#989FAB] outline-none p-1 w-full"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                type="text"
+                placeholder="Search by student name, room, shift, phone"
+                placeholdertextcolor="#989FAB"
+              />
+            </div>
+            <div
+              onClick={handleDownloadData}
+              className="bg-[#3F62AE] px-2 sm:px-3 py-2 rounded-lg text-[16px] sm:text-[20px] flex items-center justify-center gap-1 w-full sm:w-auto cursor-pointer"
+            >
+              <MdDownload size={18} />
+              <p>Downlaod Data</p>
+            </div>
           </div>
 
           {/* Responsive Table */}
@@ -205,6 +239,7 @@ function StudentRecord() {
                       } else if (dueStatus === "warning") {
                         rowTextClass = "text-yellow-400";
                       }
+                      const phone = 91 + item.phone;
                       return (
                         <tr
                           key={index}
@@ -269,10 +304,10 @@ function StudentRecord() {
                                 />
                               </button>
                               <a
-                                href={`https://wa.me/${item.phone}?text=Dear ${
+                                href={`https://wa.me/${phone}?text=Dear ${
                                   item.studentName
                                 }, ${
-                                  dueStatus === "normal"
+                                  dueStatus === "danger++"
                                     ? `this is to inform you that your payment is overdue. Please pay your membership fees as soon as possible.`
                                     : `this is to inform you that the due date for your library membership is on the ${new Date(
                                         item.dueDate
