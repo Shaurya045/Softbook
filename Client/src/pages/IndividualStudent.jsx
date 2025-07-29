@@ -181,6 +181,14 @@ function IndividualStudent() {
                     : "-"}
                 </span>
               </div>
+              <div className="flex flex-col">
+                <span className="text-[#BBD3EE] text-sm font-semibold">
+                  Amount
+                </span>
+                <span className="text-lg font-medium text-white">
+                  {data.amount}
+                </span>
+              </div>
               <div className="flex flex-col sm:col-span-2">
                 <span className="text-[#BBD3EE] text-sm font-semibold">
                   Local Address

@@ -54,7 +54,7 @@ function Login() {
       <div className=" flex flex-col justify-center max-[640px]:w-full h-full gap-8 mt-[-50px]  ">
         <div>
           <h1 className="text-[30px] font-semibold ">Welcome!</h1>
-          <p className="text-[#757C89] ">Sing In and mark your attendance</p>
+          <p className="text-[#757C89] ">Sign In and mark your attendance</p>
         </div>
         <form
           className="flex flex-col gap-[30px] w-full "

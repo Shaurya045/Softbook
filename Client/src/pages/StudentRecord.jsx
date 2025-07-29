@@ -51,6 +51,10 @@ function StudentRecord() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Sorting state: null (no sort), "asc", "desc"
+  const [seatSortOrder, setSeatSortOrder] = useState(null);
+
+  // Filtering
   const filteredItems = studentData.filter((item) => {
     if (search === "") return true;
     const searchLower = search.toLowerCase();
@@ -58,12 +62,31 @@ function StudentRecord() {
       item.studentName.toLowerCase().startsWith(searchLower) ||
       item.room.toLowerCase().startsWith(searchLower) ||
       item.shift.toLowerCase().startsWith(searchLower) ||
-      item.phone.toString().startsWith(searchLower)
+      item.phone.toString().startsWith(searchLower) ||
+      item.seatNo.toString().startsWith(searchLower)
     );
   });
 
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
+  // Sorting
+  let sortedItems = [...filteredItems];
+  if (seatSortOrder === "asc") {
+    sortedItems.sort((a, b) => {
+      if (typeof a.seatNo === "number" && typeof b.seatNo === "number") {
+        return a.seatNo - b.seatNo;
+      }
+      return String(a.seatNo).localeCompare(String(b.seatNo));
+    });
+  } else if (seatSortOrder === "desc") {
+    sortedItems.sort((a, b) => {
+      if (typeof a.seatNo === "number" && typeof b.seatNo === "number") {
+        return b.seatNo - a.seatNo;
+      }
+      return String(b.seatNo).localeCompare(String(a.seatNo));
+    });
+  }
+
+  const totalPages = Math.ceil(sortedItems.length / itemsPerPage);
+  const paginatedItems = sortedItems.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -123,6 +146,16 @@ function StudentRecord() {
     }
   };
 
+  // Handler for clicking the Seat heading
+  const handleSeatSort = () => {
+    setCurrentPage(1);
+    setSeatSortOrder((prev) => {
+      if (prev === "asc") return "desc";
+      if (prev === "desc") return "asc";
+      return "asc";
+    });
+  };
+
   return (
     <div className=" w-full h-full">
       {showEdit && item && (
@@ -173,9 +206,10 @@ function StudentRecord() {
                 onChange={(e) => {
                   setSearch(e.target.value);
                   setCurrentPage(1);
+                  setSeatSortOrder(null); // Reset seat sort on new search
                 }}
                 type="text"
-                placeholder="Search by student name, room, shift, phone"
+                placeholder="Search by student name, room, shift, phone, seatNo"
                 placeholdertextcolor="#989FAB"
               />
             </div>
@@ -217,7 +251,41 @@ function StudentRecord() {
                     <th className="px-2 sm:px-4 py-2">Name</th>
                     <th className="px-2 sm:px-4 py-2">Room</th>
                     <th className="px-2 sm:px-4 py-2">Shift</th>
-                    <th className="px-2 sm:px-4 py-2">Seat</th>
+                    <th
+                      className="px-2 sm:px-4 py-2 cursor-pointer select-none"
+                      onClick={handleSeatSort}
+                      title={
+                        seatSortOrder === "asc"
+                          ? "Sort by Seat Descending"
+                          : "Sort by Seat Ascending"
+                      }
+                      style={{
+                        textDecoration: "underline",
+                        color:
+                          seatSortOrder === "asc"
+                            ? "#83ABDB"
+                            : seatSortOrder === "desc"
+                            ? "#EF4444"
+                            : undefined,
+                        fontWeight:
+                          seatSortOrder === "asc" || seatSortOrder === "desc"
+                            ? "bold"
+                            : undefined,
+                        userSelect: "none",
+                      }}
+                    >
+                      Seat
+                      {seatSortOrder === "asc" && (
+                        <span style={{ marginLeft: 4, fontSize: "0.9em" }}>
+                          ↑
+                        </span>
+                      )}
+                      {seatSortOrder === "desc" && (
+                        <span style={{ marginLeft: 4, fontSize: "0.9em" }}>
+                          ↓
+                        </span>
+                      )}
+                    </th>
                     <th className="px-2 sm:px-4 py-2">Phone</th>
                     <th className="px-2 sm:px-4 py-2">Due Date</th>
                     <th className="px-2 sm:px-4 py-2">Actions</th>

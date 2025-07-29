@@ -55,7 +55,7 @@ function Login() {
           onSubmit={onSubmitHandler}
         >
           <div className="flex flex-col gap-1 w-full">
-            <p className="text-[16px] font-semibold pl-[3px] ">Phone</p>
+            <p className="text-[16px] font-semibold pl-[3px] ">Email</p>
             <input
               value={data.email}
               onChange={onChangeHandler}
