@@ -21,15 +21,45 @@ function NewAdmission() {
     paymentMode: "Online",
     idProof: "None",
   });
+  const [phoneError, setPhoneError] = useState("");
 
   const onChangeHandler = (e) => {
     const name = e.target.name;
-    const value = e.target.value;
+    let value = e.target.value;
+
+    // Phone validation: only allow digits, max 10 digits
+    if (name === "phone") {
+      // Remove non-digit characters
+      value = value.replace(/\D/g, "");
+      // Limit to 10 digits
+      if (value.length > 10) value = value.slice(0, 10);
+      setData((prev) => ({ ...prev, [name]: value }));
+
+      // Set error if not 10 digits and not empty
+      if (value.length === 0 || value.length === 10) {
+        setPhoneError("");
+      } else {
+        setPhoneError("Phone number must be exactly 10 digits");
+      }
+      return;
+    }
+
+    // For duration and amount, only allow numbers (no validation required)
+    if (name === "duration" || name === "amount") {
+      // Remove non-digit characters
+      value = value.replace(/\D/g, "");
+    }
+
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    // Validate phone before proceeding
+    if (data.phone.length !== 10) {
+      setPhoneError("Phone number must be exactly 10 digits");
+      return;
+    }
     setShowSeats(true);
   };
 
@@ -170,10 +200,18 @@ function NewAdmission() {
                     onChange={onChangeHandler}
                     name="phone"
                     className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
-                    type="text"
-                    placeholder="7667261255"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="9876543210"
                     required
+                    maxLength={10}
                   />
+                  {phoneError && (
+                    <span className="text-red-500 text-xs mt-1">
+                      {phoneError}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1 w-full">
                   <p className="text-[16px] font-semibold pl-[3px] ">
@@ -184,7 +222,9 @@ function NewAdmission() {
                     onChange={onChangeHandler}
                     name="duration"
                     className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="2"
                     required
                   />
@@ -248,6 +288,8 @@ function NewAdmission() {
                     name="amount"
                     className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Rs. 500"
                     required
                   />

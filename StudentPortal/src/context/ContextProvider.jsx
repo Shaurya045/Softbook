@@ -151,6 +151,7 @@ const ContextProvider = (props) => {
     setLng,
     attendanceData,
     profileData,
+    loadAttendanceData,
   };
 
   return (

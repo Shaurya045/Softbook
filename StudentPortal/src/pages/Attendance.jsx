@@ -4,7 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function Attendance() {
-  const { token, backendURL, lat, lng, setLat, setLng } = useContext(Context);
+  const { token, backendURL, lat, lng, setLat, setLng, loadAttendanceData } =
+    useContext(Context);
   const [locationDenied, setLocationDenied] = useState(false);
 
   const requestLocation = () => {
@@ -59,6 +60,7 @@ function Attendance() {
       );
       if (response.data.success) {
         toast.success(response.data.message);
+        await loadAttendanceData();
       } else {
         toast.error(response.data.message);
       }

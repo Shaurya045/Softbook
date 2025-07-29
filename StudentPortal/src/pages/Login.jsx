@@ -11,17 +11,51 @@ function Login() {
     phone: "",
     password: "",
   });
+  const [phoneError, setPhoneError] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const navigate = useNavigate();
   const { libraryId } = useParams();
 
+  const validatePhone = (phone) => {
+    if (!phone) {
+      return "Phone is required";
+    } else if (!/^\d{10}$/.test(phone)) {
+      return "Phone number must be exactly 10 digits";
+    }
+    return "";
+  };
+
   const onChangeHandler = (e) => {
     const name = e.target.name;
-    const value = e.target.value;
+    let value = e.target.value;
+
+    if (name === "phone") {
+      // Only allow digits and max 10
+      value = value.replace(/\D/g, "");
+      if (value.length > 10) value = value.slice(0, 10);
+      setPhoneError(validatePhone(value));
+    }
+
     setData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const onPhoneBlur = () => {
+    setPhoneTouched(true);
+    setPhoneError(validatePhone(data.phone));
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    // Validate phone before submit
+    const phoneValidation = validatePhone(data.phone);
+    setPhoneError(phoneValidation);
+    setPhoneTouched(true);
+    if (phoneValidation) {
+      toast.error("Please enter a valid phone number.");
+      return;
+    }
+
     try {
       let payload = { ...data, libraryId: libraryId };
       const response = await axios.post(
@@ -36,7 +70,11 @@ function Login() {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
     }
   };
 
@@ -65,12 +103,22 @@ function Login() {
             <input
               value={data.phone}
               onChange={onChangeHandler}
+              onBlur={onPhoneBlur}
               name="phone"
-              className="outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]"
-              type="text"
+              className={`outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB]${
+                phoneTouched && phoneError ? " border border-red-500" : ""
+              }`}
+              type="tel"
+              inputMode="numeric"
+              pattern="\d{10}"
+              maxLength={10}
               placeholder="76672XXXXX"
               required
+              autoComplete="off"
             />
+            {phoneTouched && phoneError && (
+              <span className="text-red-500 text-xs mt-1">{phoneError}</span>
+            )}
           </div>
           <div className="flex flex-col gap-1 w-full">
             <p className="text-[16px] font-semibold pl-[3px] ">Password</p>
@@ -86,7 +134,7 @@ function Login() {
           </div>
           <button
             type="submit"
-            className="bg-[#4BDE80] p-[10px] text-[#101826] text-[20px] font-semibold rounded-[10px] w-full sm:w-[500px] cursor-pointer self-center "
+            className="bg-[#303A96] p-[10px] text-white text-[20px] font-semibold rounded-[10px] w-full sm:w-[500px] cursor-pointer self-center "
           >
             Sign In
           </button>
@@ -94,7 +142,7 @@ function Login() {
         <p>
           Register Yourself:-{" "}
           <span
-            className="cursor-pointer text-[#4BDE80] "
+            className="cursor-pointer text-[#83ABDB] "
             onClick={() => navigate(`/${libraryId}/register`)}
           >
             Sign Up
