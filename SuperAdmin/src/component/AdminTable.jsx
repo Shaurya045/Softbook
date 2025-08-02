@@ -6,6 +6,7 @@ import { FaAngleLeft } from "react-icons/fa6";
 import { FaWhatsapp } from "react-icons/fa";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { FiExternalLink } from "react-icons/fi";
+import { BiSolidPhoneCall } from "react-icons/bi";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
@@ -204,6 +205,7 @@ function AdminTable() {
                   } else if (dueStatus <= 7) {
                     rowTextClass = "text-yellow-400";
                   }
+                  const phone = 91 + item.phone;
                   return (
                     <tr
                       key={index}
@@ -246,9 +248,24 @@ function AdminTable() {
                             <option value="basic">Basic</option>
                             <option value="expired">Expired</option>
                           </select>
+                          <a
+                            href={`tel:${item.phone}`}
+                            className="block md:hidden"
+                          >
+                            <button
+                              className="p-1 hover:bg-[#374151] rounded cursor-pointer"
+                              aria-label="Phone"
+                            >
+                              <BiSolidPhoneCall
+                                color="#BBD3EE"
+                                size={16}
+                                className="sm:size-[18px]"
+                              />
+                            </button>
+                          </a>
 
                           <a
-                            href={`https://wa.me/${item.phone}?text=Dear ${
+                            href={`https://wa.me/${phone}?text=Dear ${
                               item.name
                             }, ${
                               dueStatus <= 0

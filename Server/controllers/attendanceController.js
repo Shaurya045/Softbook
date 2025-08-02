@@ -60,8 +60,8 @@ const markAttendance = async (req, res) => {
     const dbLng = Number(centerLng);
 
     // Debug: Log values to help diagnose
-    console.log("Student location (from frontend):", userLat, userLng);
-    console.log("Center location (from DB):", dbLat, dbLng);
+    // console.log("Student location (from frontend):", userLat, userLng);
+    // console.log("Center location (from DB):", dbLat, dbLng);
 
     // Calculate distance (correct order: lat, lng)
     const distance = getDistanceFromLatLonInMeters(
@@ -72,7 +72,7 @@ const markAttendance = async (req, res) => {
     );
 
     // Debug: Log distance
-    console.log("Distance (meters):", distance);
+    // console.log("Distance (meters):", distance);
 
     const allowedRadius = 100; // meters
 

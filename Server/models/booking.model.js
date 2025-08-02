@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
+  libraryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "admin",
+    required: false,
+    default: null,
+  },
   seatId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "seat",
@@ -27,6 +33,7 @@ const bookingSchema = new mongoose.Schema({
   },
 });
 
-const bookingModel = mongoose.models.booking || mongoose.model("booking", bookingSchema);
+const bookingModel =
+  mongoose.models.booking || mongoose.model("booking", bookingSchema);
 
-export default bookingModel; 
+export default bookingModel;

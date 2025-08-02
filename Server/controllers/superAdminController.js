@@ -68,20 +68,49 @@ const deleteAdmin = async (req, res) => {
         .json({ success: false, message: "Library ID is required" });
     }
 
-    const adminDeleted = await adminModel.findByIdAndDelete(libraryId);
+    // Check if admin exists before deleting
+    const admin = await adminModel.findById(libraryId);
+    if (!admin) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Library not found" });
+    }
 
+    // Delete admin
+    await adminModel.findByIdAndDelete(libraryId);
+
+    // Delete all seats and shifts for this library
     await seatModel.deleteMany({ libraryId });
     await shiftModel.deleteMany({ libraryId });
-    await bookingModel.deleteMany({ libraryId }); // Bookings should reference seat/shift, but add this for safety
 
-    // Find all students to delete their images and auths
+    // Find all students for this library
     const students = await studentModel.find({ libraryId });
     const studentIds = students.map((s) => s._id);
+
+    // Delete all bookings for this library
+    if (studentIds.length > 0) {
+      // Check if there are any bookings with this libraryId
+      const bookingsWithLibraryId = await bookingModel.countDocuments({
+        libraryId,
+      });
+      if (bookingsWithLibraryId > 0) {
+        // New data: delete by libraryId
+        await bookingModel.deleteMany({ libraryId });
+      } else {
+        // Old data: delete by studentId
+        await bookingModel.deleteMany({ studentId: { $in: studentIds } });
+      }
+    }
+
+    // Delete all student auths for these students
     if (studentIds.length > 0) {
       await studentAuthModel.deleteMany({ student: { $in: studentIds } });
     }
+
+    // Delete all payments for this library
     await paymentModel.deleteMany({ libraryId });
 
+    // Helper to extract Cloudinary public id from a URL
     function getCloudinaryPublicId(url) {
       if (!url) return null;
       const parts = url.split("/upload/");
@@ -95,6 +124,7 @@ const deleteAdmin = async (req, res) => {
       return pathWithoutExtension;
     }
 
+    // Delete student images and idUpload files from Cloudinary
     for (const student of students) {
       if (student.image) {
         const imagePublicId = getCloudinaryPublicId(student.image);
@@ -124,14 +154,9 @@ const deleteAdmin = async (req, res) => {
       }
     }
 
+    // Delete all students and their attendance for this library
     await studentModel.deleteMany({ libraryId });
     await attendanceModel.deleteMany({ libraryId });
-
-    if (!adminDeleted) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Library not found" });
-    }
 
     res.status(200).json({
       success: true,

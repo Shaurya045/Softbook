@@ -1,6 +1,7 @@
 import express from "express";
 import {
   admission,
+  deleteAllStudent,
   deleteStudent,
   getAllStudent,
   getStudentbyId,
@@ -24,5 +25,6 @@ router.get("/allstudents", auth, getAllStudent);
 router.post("/getstudent", auth, getStudentbyId);
 router.patch("/updatestudent", auth, updateStudent);
 router.delete("/delete", auth, deleteStudent);
+router.delete("/deleteall", auth, deleteAllStudent);
 
 export default router;

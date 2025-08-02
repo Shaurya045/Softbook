@@ -41,11 +41,12 @@ const admission = async (req, res) => {
         .status(400)
         .json({ success: false, message: "libraryId is required." });
     }
+    // Check if student already exists in this library
     const existingStudent = await studentModel.findOne({ phone, libraryId });
     if (existingStudent) {
       return res
         .status(400)
-        .json({ success: "false", message: "Student already exists." });
+        .json({ success: false, message: "Student already exists." });
     }
     // Find seat and shift
     const seat = await seatModel.findOne({ room, seatNo, libraryId });
@@ -53,9 +54,9 @@ const admission = async (req, res) => {
     if (!seat || !shift) {
       return res
         .status(400)
-        .json({ status: "error", error: "Seat or shift not found" });
+        .json({ success: false, message: "Seat or shift not found" });
     }
-    // Check for overlap with existing bookings
+    // Check for overlap with existing bookings for this seat
     const bookings = await bookingModel.find({
       seatId: seat._id,
       status: "booked",
@@ -72,22 +73,22 @@ const admission = async (req, res) => {
         )
       ) {
         return res.status(400).json({
-          status: "error",
-          error: `Seat already booked for (${bookedShift.name}) shift, so cannot book.`,
+          success: false,
+          message: `Seat already booked for (${bookedShift.name}) shift, so cannot book.`,
         });
       }
     }
-    // Now upload files to Cloudinary after all checks pass
+    // Upload files to Cloudinary after all checks pass
     let idUploadUrl = "";
     let imageUrl = "";
-    if (req.files.idUpload && req.files.idUpload[0]) {
+    if (req.files && req.files.idUpload && req.files.idUpload[0]) {
       const idUploadResult = await cloudinary.uploader.upload(
         req.files.idUpload[0].path,
         { folder: "students/idUpload" }
       );
       idUploadUrl = idUploadResult.secure_url;
     }
-    if (req.files.image && req.files.image[0]) {
+    if (req.files && req.files.image && req.files.image[0]) {
       const imageResult = await cloudinary.uploader.upload(
         req.files.image[0].path,
         { folder: "students/image" }
@@ -101,7 +102,7 @@ const admission = async (req, res) => {
       const now = new Date();
       due = new Date(now.setMonth(now.getMonth() + Number(duration || 1)));
     }
-    // Create student only after all checks and uploads
+    // Create student after all checks and uploads
     const student = await studentModel.create({
       studentName,
       fatherName,
@@ -136,6 +137,7 @@ const admission = async (req, res) => {
       shiftId: shift._id,
       status: "booked",
       studentId: student._id,
+      libraryId,
     });
     // 2. Create unavailable bookings for all overlapping shifts
     const allShifts = await shiftModel.find({ libraryId });
@@ -153,6 +155,7 @@ const admission = async (req, res) => {
             shiftId: s._id,
             status: "unavailable",
             studentId: null,
+            libraryId,
           });
         }
       }
@@ -172,12 +175,10 @@ const getAllStudent = async (req, res) => {
     const students = await studentModel
       .find({ libraryId })
       .sort({ createdAt: -1 });
-    res.status(201).json({ success: "true", students });
+    res.status(200).json({ success: true, students });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ success: "false", message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -185,12 +186,15 @@ const getStudentbyId = async (req, res) => {
   try {
     const { id } = req.body;
     const student = await studentModel.findById(id);
-    res.status(201).json({ success: "true", student });
+    if (!student) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
+    }
+    res.status(200).json({ success: true, student });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ success: "false", message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -329,6 +333,7 @@ const updateStudent = async (req, res) => {
         shiftId: shift._id,
         status: "booked",
         studentId: id,
+        libraryId: student.libraryId,
       });
 
       // 5. Create unavailable bookings for all overlapping shifts
@@ -346,6 +351,7 @@ const updateStudent = async (req, res) => {
               shiftId: s._id,
               status: "unavailable",
               studentId: null,
+              libraryId: student.libraryId,
             });
           }
         }
@@ -432,6 +438,8 @@ const deleteStudent = async (req, res) => {
       }
     }
     await bookingModel.deleteMany({ studentId: id });
+
+    // Helper to extract Cloudinary public id from a URL
     function getCloudinaryPublicId(url) {
       if (!url) return null;
       const parts = url.split("/upload/");
@@ -475,10 +483,113 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const deleteAllStudent = async (req, res) => {
+  try {
+    const libraryId = req.libraryId;
+    if (!libraryId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Library ID is required" });
+    }
+
+    // Find all students in this library
+    const students = await studentModel.find({ libraryId });
+    const studentIds = students.map((s) => s._id);
+    if (studentIds.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No students found" });
+    }
+
+    // Delete all bookings for this library
+    // For new data (with libraryId in booking), delete by libraryId
+    // For old data (without libraryId in booking), delete by studentId
+    if (studentIds.length > 0) {
+      // Check if there are any bookings with this libraryId
+      const bookingsWithLibraryId = await bookingModel.countDocuments({
+        libraryId,
+      });
+      if (bookingsWithLibraryId > 0) {
+        // New data: delete by libraryId
+        await bookingModel.deleteMany({ libraryId });
+      } else {
+        // Old data: delete by studentId
+        await bookingModel.deleteMany({ studentId: { $in: studentIds } });
+      }
+    }
+
+    // Delete all student auths for these students
+    if (studentIds.length > 0) {
+      await studentAuthModel.deleteMany({ student: { $in: studentIds } });
+    }
+
+    // Delete all payments for this library
+    await paymentModel.deleteMany({ libraryId });
+
+    // Helper to extract Cloudinary public id from a URL
+    function getCloudinaryPublicId(url) {
+      if (!url) return null;
+      const parts = url.split("/upload/");
+      if (parts.length < 2) return null;
+      const publicPathWithExtension = parts[1];
+      const segments = publicPathWithExtension.split("/");
+      if (/^v\d+$/.test(segments[0])) {
+        segments.shift();
+      }
+      const pathWithoutExtension = segments.join("/").split(".")[0];
+      return pathWithoutExtension;
+    }
+
+    // Delete student images and idUpload files from Cloudinary
+    for (const student of students) {
+      if (student.image) {
+        const imagePublicId = getCloudinaryPublicId(student.image);
+        if (imagePublicId) {
+          try {
+            await cloudinary.uploader.destroy(imagePublicId);
+          } catch (err) {
+            console.log(
+              `Error deleting student image from Cloudinary for student ${student._id}:`,
+              err
+            );
+          }
+        }
+      }
+      if (student.idUpload) {
+        const idUploadPublicId = getCloudinaryPublicId(student.idUpload);
+        if (idUploadPublicId) {
+          try {
+            await cloudinary.uploader.destroy(idUploadPublicId);
+          } catch (err) {
+            console.log(
+              `Error deleting student idUpload from Cloudinary for student ${student._id}:`,
+              err
+            );
+          }
+        }
+      }
+    }
+
+    // Delete all students for this library
+    await studentModel.deleteMany({ libraryId });
+
+    // Delete all attendance records for this library
+    await attendanceModel.deleteMany({ libraryId });
+
+    res
+      .status(200)
+      .json({ success: true, message: "All Students Data Deleted" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 export {
   admission,
   getAllStudent,
   getStudentbyId,
   updateStudent,
   deleteStudent,
+  deleteAllStudent,
 };

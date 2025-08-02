@@ -12,7 +12,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import UpdateStudent from "../components/UpdateStudent";
 import { Link } from "react-router-dom";
-import { MdDownload } from "react-icons/md";
+import { MdDelete, MdDownload } from "react-icons/md";
 
 function getDueDateStatus(dueDate) {
   if (!dueDate) return "normal";
@@ -119,7 +119,35 @@ function StudentRecord() {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      toast.error(error.response.data.message);
+    } finally {
+      setDeleteID("");
+      setDeleteShow(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      const response = await axios.delete(`${backendURL}students/deleteall`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setDeleteShow(false);
+        setDeleteID("");
+        await loadStudentData();
+        await loadBookingData();
+        await loadPayments();
+        await loadAttendanceData();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    } finally {
+      setDeleteID("");
+      setDeleteShow(false);
     }
   };
 
@@ -166,8 +194,10 @@ function StudentRecord() {
           <div className="bg-[#374151] p-4 sm:p-6 w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl h-auto flex flex-col items-center justify-center gap-6 rounded-xl mx-2">
             <p className="text-[18px] sm:text-[20px] font-semibold text-center break-words">
               Do You Want to Delete{" "}
-              {studentData.find((item) => item._id === deleteID)?.studentName ||
-                ""}
+              {deleteID === "all"
+                ? "All Student"
+                : studentData.find((item) => item._id === deleteID)
+                    ?.studentName || ""}
               's Data ?
             </p>
             <div className="flex flex-col sm:flex-row w-full items-center justify-center gap-4 sm:gap-5">
@@ -181,7 +211,13 @@ function StudentRecord() {
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => {
+                  if (deleteID === "all") {
+                    handleDeleteAll();
+                  } else {
+                    handleDelete();
+                  }
+                }}
                 className="bg-[#477CBF] p-2 sm:p-[10px] text-white text-[18px] sm:text-[20px] font-semibold rounded-[10px] w-full sm:w-1/2 cursor-pointer self-center"
               >
                 Delete
@@ -196,9 +232,9 @@ function StudentRecord() {
           Student Record
         </h1>
         <div className="flex flex-col gap-4 sm:gap-6 w-full">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+          <div className="flex flex-col min-[920px]:flex-row items-stretch min-[920px]:items-center justify-between gap-3 w-full">
             {/* Search Bar */}
-            <div className="flex flex-row items-center justify-start gap-2 w-full sm:w-[60%] md:w-[70%] bg-[#374151] rounded-lg px-2 py-2 sm:px-4 shadow-2xl">
+            <div className="flex flex-row items-center justify-start gap-2 w-full min-[920px]:w-[60%] bg-[#374151] rounded-lg px-2 py-2 sm:px-4 shadow-2xl">
               <IoSearchOutline color="white" size={22} className=" block" />
               <input
                 className="bg-transparent text-[16px] sm:text-[20px] text-[#989FAB] outline-none p-1 w-full"
@@ -213,12 +249,25 @@ function StudentRecord() {
                 placeholdertextcolor="#989FAB"
               />
             </div>
-            <div
-              onClick={handleDownloadData}
-              className="bg-[#3F62AE] px-2 sm:px-3 py-2 rounded-lg text-[16px] sm:text-[20px] flex items-center justify-center gap-1 w-full sm:w-auto cursor-pointer"
-            >
-              <MdDownload size={18} />
-              <p>Downlaod Data</p>
+
+            <div className="flex flex-row items-center min-[920px]:justify-end gap-2 w-full min-[920px]:w-[40%]">
+              <div
+                onClick={handleDownloadData}
+                className="bg-[#3F62AE] px-2 sm:px-3 py-2 rounded-lg text-[16px] sm:text-[20px] flex items-center justify-center gap-1 w-auto cursor-pointer"
+              >
+                <MdDownload size={18} />
+                <p>Downlaod Data</p>
+              </div>
+              <div
+                onClick={() => {
+                  setDeleteID("all");
+                  setDeleteShow(true);
+                }}
+                className="bg-[#EF4444] px-2 sm:px-3 py-2 rounded-lg text-[16px] sm:text-[20px] flex items-center justify-center gap-1 w-auto cursor-pointer"
+              >
+                <MdDelete size={18} />
+                <p>Delete All</p>
+              </div>
             </div>
           </div>
 
