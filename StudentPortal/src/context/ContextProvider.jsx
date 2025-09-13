@@ -21,6 +21,7 @@ const ContextProvider = (props) => {
   const [lng, setLng] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
   const [profileData, setProfileData] = useState({});
+  const [studentAuthData, setStudentAuthData] = useState({});
 
   useEffect(() => {
     if (!localStorage.getItem("theme")) {
@@ -64,13 +65,16 @@ const ContextProvider = (props) => {
       if (response.data.success) {
         setStudentData(response.data.student || {});
         setProfileData(response.data.library || {});
+        setStudentAuthData(response.data.studentAuth || {});
       } else {
         setStudentData({});
         setProfileData({});
+        setStudentAuthData({});
       }
     } catch (err) {
       setStudentData({});
       setProfileData({});
+      setStudentAuthData({});
       console.error("Error fetching students:", err);
     } finally {
       setStudentLoaded(true);
@@ -152,6 +156,8 @@ const ContextProvider = (props) => {
     attendanceData,
     profileData,
     loadAttendanceData,
+    loadStudentData,
+    studentAuthData,
   };
 
   return (

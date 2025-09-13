@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { RiCalendarCheckLine } from "react-icons/ri";
+import { CgProfile } from "react-icons/cg";
 import { Context } from "../context/Context";
 import { images } from "../assets/assets";
 
@@ -25,7 +26,11 @@ function Sidebar() {
     >
       <div className="flex items-center min-[900px]:ml-[-10px] ">
         <img className="w-12 min-[1300px]:w-15" src={images.logo} alt="logo" />
-        <img className="max-[900px]:hidden w-30 min-[1300px]:w-38 " src={images.letterLogo} alt="softbook" />
+        <img
+          className="max-[900px]:hidden w-30 min-[1300px]:w-38 "
+          src={images.letterLogo}
+          alt="softbook"
+        />
       </div>
       <div className="flex flex-col items-start justify-between h-full ">
         <div className=" flex flex-col gap-4 ">
@@ -53,6 +58,17 @@ function Sidebar() {
           </NavLink>
         </div>
         <div className="flex flex-col gap-2 ">
+          <NavLink
+            to={`/${libraryId}/profile`}
+            className={({ isActive }) =>
+              `${
+                isActive ? "bg-[#374151] rounded-lg text-[#83ABDB] " : ""
+              } flex items-center justify-start gap-[12px] p-[8px_10px] cursor-pointer `
+            }
+          >
+            <CgProfile size={20} />
+            <p className="max-[900px]:hidden">Profile</p>
+          </NavLink>
           <div
             onClick={handleLogout}
             className="flex items-center justify-start gap-[12px] p-[8px_10px] cursor-pointer"

@@ -3,13 +3,15 @@ import studentModel from "../models/student.model.js";
 import studentAuthModel from "../models/studentAuth.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { otpService } from "../config/redis.js";
+import { sendOTPEmail } from "../config/nodemailer.js";
 
 // In a multi-library scenario, you should check both phone and libraryId to ensure the student is being registered for the correct library.
 // This assumes that the client sends libraryId in the request body.
 
 const register = async (req, res) => {
   try {
-    const { phone, password, libraryId } = req.body;
+    const { phone, email, password, libraryId } = req.body;
 
     // 1. Check if student exists in student model for the given library
     const student = await studentModel.findOne({ phone, libraryId });
@@ -35,6 +37,7 @@ const register = async (req, res) => {
     await studentAuthModel.create({
       student: student._id,
       phone,
+      email,
       password: hashedPassword,
     });
     res.status(201).json({
@@ -106,12 +109,10 @@ const getStudentData = async (req, res) => {
     // Get student id from token (set by studentAuth middleware)
     const studentId = req.studentId;
     if (!studentId) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "Not authorized. Please login again.",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. Please login again.",
+      });
     }
 
     // Find the student by id
@@ -121,21 +122,192 @@ const getStudentData = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Student not found" });
     }
+    const studentAuth = await studentAuthModel.findOne({ student: studentId });
+    if (!studentAuth) {
+      return res.status(404).json({
+        success: false,
+        message: "Student auth not found",
+      });
+    }
 
     // Fetch the library (admin) data, excluding sensitive fields
     let library = null;
     if (student.libraryId) {
       // Only select public fields from admin model
-      library = await adminModel.findById(student.libraryId)
+      library = await adminModel
+        .findById(student.libraryId)
         .select("name email phone libraryName address location subscription")
         .lean();
     }
 
-    res.status(200).json({ success: true, student, library });
+    res.status(200).json({ success: true, student, library, studentAuth });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
-export { register, login, getStudentData };
+// Update student email (for existing students)
+const updateEmail = async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const studentId = req.studentId;
+
+    if (!studentId) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. Please login again.",
+      });
+    }
+
+    // 1. Check if new email is already in use
+    const existingStudent = await studentAuthModel.findOne({ email: newEmail });
+    if (existingStudent && existingStudent._id.toString() !== studentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already in use by another student.",
+      });
+    }
+
+    // 2. Update studentAuth email
+    await studentAuthModel.findOneAndUpdate(
+      { student: studentId },
+      { email: newEmail }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Email updated successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// Forgot password - send OTP to email using Redis
+const forgotPassword = async (req, res) => {
+  try {
+    const { email, libraryId, phone } = req.body;
+
+    let student;
+
+    // 1. Check if student has auth account
+    if (phone) {
+      student = await studentAuthModel.findOne({ phone });
+      if (!student) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Your are not registered" });
+      }
+      await studentAuthModel.findByIdAndUpdate(student._id, {
+        email,
+      });
+    } else {
+      student = await studentAuthModel.findOne({ email });
+      if (!student) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is missing. Please register your Email.",
+          isPhone: true,
+        });
+      }
+    }
+
+    // 2. Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 3. Store OTP in Redis with 10 minutes TTL
+    const storeResult = await otpService.setOTP(student._id.toString(), otp);
+    if (!storeResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to store OTP. Please try again.",
+      });
+    }
+
+    // 4. Get library name for email
+    const library = await adminModel.findById(libraryId);
+    const libraryName = library?.libraryName;
+
+    // 5. Send OTP via email
+    const emailResult = await sendOTPEmail(email, otp, libraryName);
+    if (!emailResult.success) {
+      // If email fails, clean up the stored OTP
+      await otpService.deleteOTP(student._id.toString());
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP. Please try again.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to your email address.",
+      studentId: student._id,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// verify OTP
+const verifyOTP = async (req, res) => {
+  try {
+    const { otp, studentId } = req.body;
+    const verifyResult = await otpService.verifyAndDeleteOTP(
+      studentId.toString(),
+      otp
+    );
+    if (!verifyResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: verifyResult.message || "Invalid or expired OTP.",
+      });
+    }
+    return res.status(200).json({ success: true, message: "OTP verified" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// Verify OTP and reset password using Redis
+const resetPassword = async (req, res) => {
+  try {
+    const { studentId, newPassword } = req.body;
+
+    const student = await studentAuthModel.findById(studentId);
+    if (!student) {
+      return res.status(400).json({
+        success: false,
+        message: "Auth record not found.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await studentAuthModel.findByIdAndUpdate(studentId, {
+      password: hashedPassword,
+    });
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Password reset successful. Please login with your new password.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export {
+  register,
+  login,
+  getStudentData,
+  updateEmail,
+  forgotPassword,
+  verifyOTP,
+  resetPassword,
+};

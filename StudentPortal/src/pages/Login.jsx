@@ -139,15 +139,23 @@ function Login() {
             Sign In
           </button>
         </form>
-        <p>
-          Register Yourself:-{" "}
-          <span
+        <div className=" flex items-center justify-between">
+          <p>
+            Register Yourself:-{" "}
+            <span
+              className="cursor-pointer text-[#83ABDB] "
+              onClick={() => navigate(`/${libraryId}/register`)}
+            >
+              Sign Up
+            </span>
+          </p>
+          <p
+            onClick={() => navigate(`/${libraryId}/forgot`)}
             className="cursor-pointer text-[#83ABDB] "
-            onClick={() => navigate(`/${libraryId}/register`)}
           >
-            Sign Up
-          </span>
-        </p>
+            Forgot Password?
+          </p>
+        </div>
       </div>
     </div>
   );

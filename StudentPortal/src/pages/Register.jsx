@@ -8,14 +8,17 @@ function Register() {
   const { backendURL, token } = useContext(Context);
   const [data, setData] = useState({
     phone: "",
+    email: "",
     password: "",
   });
   const [errors, setErrors] = useState({
     phone: "",
+    email: "",
     password: "",
   });
   const [touched, setTouched] = useState({
     phone: false,
+    email: false,
     password: false,
   });
   const navigate = useNavigate();
@@ -33,6 +36,17 @@ function Register() {
         temp.phone = "Phone number must be exactly 10 digits";
       } else {
         temp.phone = "";
+      }
+    }
+
+    // Email validation
+    if ("email" in fieldValues) {
+      if (!fieldValues.email) {
+        temp.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValues.email)) {
+        temp.email = "Please enter a valid email address";
+      } else {
+        temp.email = "";
       }
     }
 
@@ -63,6 +77,11 @@ function Register() {
       if (value.length > 10) value = value.slice(0, 10);
     }
 
+    // Convert email to lowercase
+    if (name === "email") {
+      value = value.toLowerCase();
+    }
+
     setData((prev) => ({ ...prev, [name]: value }));
 
     // Validate on change
@@ -79,7 +98,7 @@ function Register() {
     e.preventDefault();
 
     // Validate before submit
-    setTouched({ phone: true, password: true });
+    setTouched({ phone: true, email: true, password: true });
     if (!validate()) {
       toast.error("Please fix the errors before submitting.");
       return;
@@ -155,6 +174,25 @@ function Register() {
             />
             {touched.phone && errors.phone && (
               <span className="text-red-500 text-xs mt-1">{errors.phone}</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p className="text-[16px] font-semibold pl-[3px] ">Email</p>
+            <input
+              value={data.email}
+              onChange={onChangeHandler}
+              onBlur={onBlurHandler}
+              name="email"
+              className={`outline-none p-3 bg-[#1F2937] rounded-[10px] text-[#989FAB] ${
+                touched.email && errors.email ? "border border-red-500" : ""
+              }`}
+              type="email"
+              placeholder="student@example.com"
+              required
+              autoComplete="off"
+            />
+            {touched.email && errors.email && (
+              <span className="text-red-500 text-xs mt-1">{errors.email}</span>
             )}
           </div>
           <div className="flex flex-col gap-1 w-full">

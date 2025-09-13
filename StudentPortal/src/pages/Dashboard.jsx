@@ -1,16 +1,35 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../context/Context";
 import { CgProfile } from "react-icons/cg";
 import AttendanceTable from "../component/AttendanceTable";
+import EmailUpdateModal from "../component/EmailUpdateModal";
 
 function Dashboard() {
-  const { studentData, profileData } = useContext(Context);
-
+  const { studentData, profileData, studentAuthData, token } =
+    useContext(Context);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const dueDate = new Date(studentData.dueDate);
   const today = new Date();
   dueDate.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
   const dayLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+  useEffect(() => {
+    if (studentAuthData === null || studentAuthData === undefined) return;
+    if (token && studentAuthData) {
+      const hasNoEmail =
+        !studentAuthData.email ||
+        studentAuthData.email === null ||
+        studentAuthData.email === undefined ||
+        studentAuthData.email === "";
+
+      if (hasNoEmail) {
+        setIsEmailModalOpen(true);
+      } else {
+        setIsEmailModalOpen(false);
+      }
+    }
+  }, [token, studentAuthData]);
 
   return (
     <div className="flex flex-col gap-7">
@@ -52,6 +71,10 @@ function Dashboard() {
         </div>
       </div>
       <AttendanceTable />
+      <EmailUpdateModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+      />
     </div>
   );
 }

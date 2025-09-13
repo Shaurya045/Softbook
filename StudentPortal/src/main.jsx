@@ -15,6 +15,10 @@ import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import PublicLayout from "./layout/PublicLayout.jsx";
 import ProtectedLayout from "./layout/ProtectedLayout.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import VerifyOTP from "./pages/VerifyOTP.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+import Profile from "./pages/Profile.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,10 +26,20 @@ const router = createBrowserRouter(
       <Route element={<PublicLayout />}>
         <Route path="/:libraryId/register" element={<Register />} />
         <Route path="/:libraryId/login" element={<Login />} />
+        <Route path="/:libraryId/forgot" element={<ForgotPassword />} />
+        <Route
+          path="/:libraryId/verify-otp/:studentId"
+          element={<VerifyOTP />}
+        />
+        <Route
+          path="/:libraryId/reset-password/:studentId"
+          element={<ResetPassword />}
+        />
       </Route>
       <Route element={<ProtectedLayout />}>
         <Route path="/:libraryId/dashboard" element={<Dashboard />} />
         <Route path="/:libraryId/attendance" element={<Attendance />} />
+        <Route path="/:libraryId/profile" element={<Profile />} />
       </Route>
     </Route>
   )
