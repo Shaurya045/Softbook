@@ -1,42 +1,58 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../context/Context";
+import axios from "axios";
 
 function Profile() {
-  const { profileData, paymentData } = useContext(Context);
+  const { profileData, backendURL, token } = useContext(Context);
   const [totalIncome, setTotalIncome] = useState();
   const [income, setIncome] = useState();
 
-  const calculateOneMonthIncome = () => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
+  // const calculateOneMonthIncome = () => {
+  //   const today = new Date();
+  //   today.setHours(23, 59, 59, 999);
 
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 30);
-    startDate.setHours(0, 0, 0, 0);
+  //   const startDate = new Date(today);
+  //   startDate.setDate(startDate.getDate() - 30);
+  //   startDate.setHours(0, 0, 0, 0);
 
-    let total = 0;
-    paymentData.forEach((payment) => {
-      const paymentDate = new Date(payment.paymentDate);
-      if (paymentDate >= startDate && paymentDate <= today) {
-        total += Number(payment.amount) || 0;
+  //   let total = 0;
+  //   paymentData.forEach((payment) => {
+  //     const paymentDate = new Date(payment.paymentDate);
+  //     if (paymentDate >= startDate && paymentDate <= today) {
+  //       total += Number(payment.amount) || 0;
+  //     }
+  //   });
+  //   setIncome(total);
+  // };
+
+  // const calculateTotalIncome = () => {
+  //   let total = 0;
+  //   paymentData.forEach((payment) => {
+  //     total += Number(payment.amount) || 0;
+  //   });
+  //   setTotalIncome(total);
+  // };
+
+  const loadIncome = async () => {
+    try {
+      const response = await axios.get(`${backendURL}payment/income`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // console.log(response);
+      if (response.data.success) {
+        setTotalIncome(response.data.totalIncome);
+        setIncome(response.data.last30DaysIncome);
       }
-    });
-    setIncome(total);
-  };
-
-  const calculateTotalIncome = () => {
-    let total = 0;
-    paymentData.forEach((payment) => {
-      total += Number(payment.amount) || 0;
-    });
-    setTotalIncome(total);
+    } catch (error) {
+      console.error("Error fetching incomes:", error);
+    }
   };
 
   useEffect(() => {
-    calculateTotalIncome();
-    calculateOneMonthIncome();
-    console.log(paymentData);
-  }, [paymentData]);
+    // calculateTotalIncome();
+    // calculateOneMonthIncome();
+    loadIncome();
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 sm:gap-9 w-full">
