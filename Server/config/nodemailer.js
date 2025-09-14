@@ -16,7 +16,7 @@ export const sendOTPEmail = async (email, otp, libraryName) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Softbook" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: `Password Reset OTP - ${libraryName}`,
       html: `

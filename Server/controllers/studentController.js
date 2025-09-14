@@ -95,13 +95,11 @@ const admission = async (req, res) => {
       );
       imageUrl = imageResult.secure_url;
     }
-    let due;
-    if (dueDate) {
-      due = dueDate;
-    } else {
-      const now = new Date();
-      due = new Date(now.setMonth(now.getMonth() + Number(duration || 1)));
+    let due = dueDate ? new Date(dueDate) : new Date();
+    if (!dueDate) {
+      due.setMonth(due.getMonth() + Number(duration || 1));
     }
+
     // Create student after all checks and uploads
     const student = await studentModel.create({
       studentName,
@@ -122,14 +120,21 @@ const admission = async (req, res) => {
       libraryId,
     });
     // Create payment record for admission
+    const paymentDate = new Date();
+    const validFrom = new Date(paymentDate);
+    const validTill = new Date(paymentDate);
+    validTill.setMonth(validTill.getMonth() + Number(duration || 1));
     await paymentModel.create({
       studentId: student._id,
       libraryId,
       amount,
-      paymentDate: new Date(),
+      paymentDate,
       paymentMode,
       type: "admission",
-      createdBy: req.adminId || null,
+      createdBy: libraryId || "admin",
+      paidForDuration: duration,
+      validFrom,
+      validTill,
     });
     // 1. Create the booked booking
     await bookingModel.create({
@@ -245,6 +250,24 @@ const updateStudent = async (req, res) => {
     }
     if (dueDate !== undefined && duration === undefined) {
       updates.dueDate = new Date(dueDate);
+
+      const payments = await paymentModel
+        .find({ studentId: id })
+        .sort({ paymentDate: 1 });
+      if (payments.length === 1) {
+        const duration = student.duration || 1;
+        const paymentDate = new Date(dueDate);
+        paymentDate.setMonth(paymentDate.getMonth() - duration);
+
+        const validFrom = new Date(paymentDate);
+        const validTill = new Date(validFrom);
+        validTill.setMonth(validTill.getMonth() + duration);
+
+        await paymentModel.findOneAndUpdate(
+          { studentId: id, type: "admission" },
+          { paymentDate, validFrom, validTill }
+        );
+      }
     }
 
     // Only update booking if seat/shift is being changed
@@ -363,14 +386,21 @@ const updateStudent = async (req, res) => {
       new: true,
     });
     if (isRenewal && amount !== undefined && paymentMode !== undefined) {
+      const paymentDate = new Date();
+      const validFrom = new Date(paymentDate);
+      const validTill = new Date(paymentDate);
+      validTill.setMonth(validTill.getMonth() + Number(duration || 1));
       await paymentModel.create({
         studentId: updatedStudent._id,
         libraryId: updatedStudent.libraryId,
         amount,
-        paymentDate: new Date(),
+        paymentDate,
         paymentMode,
         type: "renewal",
-        createdBy: req.adminId || null,
+        createdBy: updatedStudent.libraryId || null,
+        paidForDuration: duration,
+        validFrom,
+        validTill,
       });
     }
     res.status(200).json({ success: true, student: updatedStudent });

@@ -38,17 +38,33 @@ const income = async (req, res) => {
       const student = payment.studentId;
       totalIncome += Number(payment.amount) || 0;
 
-      if (student?.dueDate && student?.duration) {
-        // reconstruct actual payment date
+      let actualPaymentDate;
+
+      // Use the new payment model fields for accurate calculation
+      if (payment.validFrom) {
+        // Use validFrom from the payment record (most accurate)
+        actualPaymentDate = new Date(payment.validFrom);
+      } else if (payment.type === "admission") {
+        // Fallback for admission: use payment date
+        actualPaymentDate = new Date(payment.paymentDate);
+      } else if (payment.type === "renewal" && student?.duration) {
+        // Fallback for renewal: calculate from dueDate - duration
         const dueDate = new Date(student.dueDate);
-        const actualPaymentDate = new Date(dueDate);
+        actualPaymentDate = new Date(dueDate);
         actualPaymentDate.setMonth(
           actualPaymentDate.getMonth() - student.duration
         );
+      } else {
+        // Final fallback: use paymentDate
+        actualPaymentDate = new Date(payment.paymentDate);
+      }
 
-        if (actualPaymentDate >= startDate && actualPaymentDate <= today) {
-          last30DaysIncome += Number(payment.amount) || 0;
-        }
+      // Check if payment falls within last 30 days
+      const isInLast30Days =
+        actualPaymentDate >= startDate && actualPaymentDate <= today;
+
+      if (isInLast30Days) {
+        last30DaysIncome += Number(payment.amount) || 0;
       }
     });
 

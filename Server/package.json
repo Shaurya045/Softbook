@@ -8,7 +8,13 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:payments": "node migrations/paymentMigration.js",
+    "rollback:payments": "node migrations/rollbackMigration.js",
+    "rollback:payments:backup": "node migrations/rollbackMigration.js",
+    "rollback:payments:safe": "node migrations/safeRollback.js",
+    "test:migration": "node migrations/testMigration.js",
+    "fix:email-index": "node migrations/fixEmailIndex.js"
   },
   "dependencies": {
     "@json2csv/plainjs": "^7.0.6",
