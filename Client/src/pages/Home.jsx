@@ -9,7 +9,7 @@ import { images } from "../assets/assets";
 
 function Home() {
   return (
-    <div className="bg-[#0F0E1B] w-full relative overflow-hidden px-6 py-2 ">
+    <div className="bg-[#0F0E1B] w-full relative overflow-hidden px-6 pt-2 ">
       {/* Gradient backgrounds - improved for mobile */}
       <div
         className="bg-gradient-to-br from-[#03C7BD] rounded-full absolute z-0
@@ -60,7 +60,6 @@ function Home() {
         md:w-[500px] md:h-[300px] md:blur-[150px] md:top-[300px] md:right-[-450px]
       "
       ></div>
-      {/* <div className="bg-gradient-to-tr from-[#D6D446] via-[#03C7BD] to-[#03C7BD] w-[500px] h-[700px] rounded-full blur-[600px] absolute top-[-650px] right-[-400px] z-0"></div> */}
 
       {/* Main content above gradients */}
       <div className="relative z-10">
@@ -73,7 +72,7 @@ function Home() {
                 Make Your Library Smarter
               </h2>
               <h2 className="text-3xl sm:text-5xl md:text-6xl font-semibold bg-gradient-to-r from-[#D6D446] to-[#03C7BD] bg-clip-text text-transparent pb-2 sm:pb-3 md:pb-4 text-center">
-                Best way to manage your library
+                Best way to manage your Study Center
               </h2>
             </div>
             <p className="w-full max-w-xl md:max-w-4xl text-center text-base sm:text-lg md:text-2xl text-[#989FAB] px-2">
@@ -156,7 +155,10 @@ function Home() {
         </div>
 
         {/* Pricing Section */}
-        <div id="pricing" className="flex flex-col items-center mb-20 px-4">
+        <div
+          id="pricing"
+          className="flex flex-col items-center gap-6 mb-35 px-4"
+        >
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-[32px] sm:text-[40px] font-semibold text-white">
               Pricing
@@ -166,105 +168,233 @@ function Home() {
             </p>
           </div>
           {/* Responsive pricing cards */}
-          <div className="relative w-full flex flex-col lg:flex-row justify-center items-center gap-6">
-            {/* Left Card */}
-            {/* <div className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:mr-6 lg:ml-0 ml-0 mb-6 lg:mb-0 flex-shrink-0">
-              <div className="flex flex-col items-center justify-center px-8 py-10 h-full">
-                <h3 className="text-white text-2xl font-semibold mb-2">
-                  Basic
-                </h3>
-                <p className="text-[#989FAB] mb-6 text-center">
-                  Perfect for individuals and small businesses starting out.
-                </p>
-                <div className="text-3xl font-bold text-white mb-4">
-                  $9<span className="text-lg font-normal">/mo</span>
-                </div>
-                <ul className="text-[#989FAB] text-sm mb-6 space-y-2 text-center">
-                  <li>✔ 1 User</li>
-                  <li>✔ Basic Analytics</li>
-                  <li>✔ Email Support</li>
-                </ul>
-                <button className="bg-[#303A96] text-white px-6 py-2 rounded hover:bg-[#232a6b] transition">
-                  Choose Basic
-                </button>
-              </div>
-            </div> */}
-            {/* Center Card */}
-            <div className="w-full sm:w-[90%] lg:w-[340px] max-w-[370px] h-auto bg-[#3B4252] rounded-xl shadow-2xl flex flex-col items-center justify-center px-8 py-12 lg:scale-110 lg:mx-0 mx-auto mb-6 lg:mb-0 flex-shrink-0 z-20">
-              <h3 className="text-white text-2xl font-semibold mb-2">Early Bird Offer</h3>
-              <p className="text-[#989FAB] mb-6 text-center">
-                Avail the offer price. We're just getting started!
-              </p>
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Free Plan */}
+            <div className="bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 flex flex-col items-center justify-center px-5 py-10">
+              <h3 className="text-white text-2xl font-semibold mb-2">
+                Free Plan
+              </h3>
+              <p className="text-[#989FAB] mb-6 text-center">For 15 days</p>
               <div className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
-                <span>₹1000</span>
-                <span className="text-lg font-normal">/mo</span>
-                <span className="text-lg font-normal line-through text-[#989FAB]">₹1500</span>
+                <span>₹0</span>
               </div>
               <ul className="text-[#989FAB] text-sm mb-6 space-y-2">
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
-                  <p className="">Add unlimited students, rooms, seats and shifts</p>
+                  <p className="">
+                    Add unlimited students, rooms, seats and shifts
+                  </p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
                   <p className="">Maintain and view student record</p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
                   <p className="">View your income information</p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
                   <p className="">Generate unlimited receipts</p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">QR for student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
                   <p className="">Separate student portal for your library</p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start gap-[2px]">
                   <TiTick size={22} />
                   <p className="">Check student attendance</p>
                 </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Download Data in Excel</p>
+                </li>
               </ul>
-              {/* <button className="bg-[#D6D446] text-[#232a36] font-semibold px-8 py-2 rounded hover:bg-[#bdbb3a] transition">
+              <Link
+                to="/register"
+                className="bg-[#303A96] text-white hover:bg-[#232a6b] font-semibold px-8 py-2 rounded transition"
+              >
                 Book Now
-              </button> */}
+              </Link>
+            </div>
+            {/* Left Card */}
+            <div className="bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 flex flex-col items-center justify-center px-5 py-10">
+              <h3 className="text-white text-2xl font-semibold mb-2">
+                Basic Plan
+              </h3>
+              <p className="text-[#989FAB] mb-6 text-center">For 1 Month</p>
+              <div className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
+                <span>₹500</span>
+                <span className="text-2xl font-normal">/mo</span>
+                <span className="text-lg font-normal line-through text-[#989FAB]">
+                  ₹650
+                </span>
+              </div>
+              <ul className="text-[#989FAB] text-sm mb-6 space-y-2">
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">
+                    Add unlimited students, rooms, seats and shifts
+                  </p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Maintain and view student record</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">View your income information</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Generate unlimited receipts</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">QR for student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Separate student portal for your library</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Check student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Download Data in Excel</p>
+                </li>
+              </ul>
+              <Link
+                to="/register"
+                className="bg-[#303A96] text-white hover:bg-[#232a6b] font-semibold px-8 py-2 rounded transition"
+              >
+                Book Now
+              </Link>
+            </div>
+            {/* Special Card */}
+            <div className="bg-[#3B4252] rounded-xl shadow-2xl flex flex-col items-center justify-center px-5 py-10 lg:scale-105 z-20">
+              <h3 className="text-white text-2xl font-semibold mb-2">
+                Early Bird Offer
+              </h3>
+              <p className="text-[#989FAB] mb-6 text-center">For 3 Months</p>
+              <div className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
+                <span>₹1450</span>
+                {/* <span className="text-lg font-normal">/mo</span> */}
+                <span className="text-lg font-normal line-through text-[#989FAB]">
+                  ₹1950
+                </span>
+              </div>
+              <ul className="text-[#989FAB] text-sm mb-6 space-y-2">
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">
+                    Add unlimited students, rooms, seats and shifts
+                  </p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Maintain and view student record</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">View your income information</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Generate unlimited receipts</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">QR for student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Separate student portal for your library</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Check student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Download Data in Excel</p>
+                </li>
+              </ul>
               <Link
                 to="/register"
                 className="bg-[#D6D446] text-[#232a36] font-semibold px-8 py-2 rounded hover:bg-[#bdbb3a] transition"
               >
                 Book Now
               </Link>
-              
             </div>
             {/* Right Card */}
-            {/* <div D6D446 className="w-full sm:w-[90%] lg:w-[320px] max-w-[370px] h-auto bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 lg:ml-6 lg:mr-0 mr-0 flex-shrink-0">
-              <div className="flex flex-col items-center justify-center px-8 py-10 h-full">
-                <h3 className="text-white text-2xl font-semibold mb-2">
-                  Enterprise
-                </h3>
-                <p className="text-[#989FAB] mb-6 text-center">
-                  For large organizations with advanced needs.
-                </p>
-                <div className="text-3xl font-bold text-white mb-4">Custom</div>
-                <ul className="text-[#989FAB] text-sm mb-6 space-y-2 text-center">
-                  <li>✔ Unlimited Users</li>
-                  <li>✔ All Pro Features</li>
-                  <li>✔ Dedicated Manager</li>
-                  <li>✔ SLA & Custom Integrations</li>
-                </ul>
-                <button className="bg-[#303A96] text-white px-6 py-2 rounded hover:bg-[#232a6b] transition">
-                  Contact Sales
-                </button>
+            <div className="bg-[#232a36] rounded-xl shadow-lg transition-all duration-300 flex flex-col items-center justify-center px-5 py-10">
+              <h3 className="text-white text-2xl font-semibold mb-2">
+                Premium Plan
+              </h3>
+              <p className="text-[#989FAB] mb-6 text-center">For 6 Months</p>
+              <div className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
+                <span>₹2800</span>
+                <span className="text-lg font-normal line-through text-[#989FAB]">
+                  ₹3990
+                </span>
               </div>
-            </div> */}
+              <ul className="text-[#989FAB] text-sm mb-6 space-y-2">
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">
+                    Add unlimited students, rooms, seats and shifts
+                  </p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Maintain and view student record</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">View your income information</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Generate unlimited receipts</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">QR for student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Separate student portal for your library</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Check student attendance</p>
+                </li>
+                <li className="flex items-start gap-[2px]">
+                  <TiTick size={22} />
+                  <p className="">Download Data in Excel</p>
+                </li>
+              </ul>
+              <Link
+                to="/register"
+                className="bg-[#303A96] text-white hover:bg-[#232a6b] font-semibold px-8 py-2 rounded transition"
+              >
+                Book Now
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Contact Section */}
         <div
           id="contact"
-          className="flex flex-col md:flex-row items-start w-full mb-20 px-4 sm:px-8 md:px-10 gap-8"
+          className="flex flex-col md:flex-row items-start w-full mb-30 px-4 sm:px-8 md:px-10 gap-8"
         >
           <div className="w-full md:w-[35%] flex flex-col items-start mb-8 md:mb-0">
             <h2 className="text-[32px] sm:text-[36px] md:text-[40px] font-semibold text-white mb-2">
@@ -349,6 +479,7 @@ function Home() {
           </form>
         </div>
       </div>
+
       {/* Footer */}
       <footer className="w-screen bg-[#181c27] border-t border-[#232a36] mt-10 py-8 px-4 flex flex-col md:flex-row justify-between items-center md:items-start gap-8 text-[#989FAB] text-sm relative left-1/2 right-1/2 -translate-x-1/2">
         {/* Logo and Typo */}
