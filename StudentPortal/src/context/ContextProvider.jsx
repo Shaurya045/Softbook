@@ -4,8 +4,7 @@ import { Context } from "./Context";
 import { useEffect, useState } from "react";
 
 const ContextProvider = (props) => {
-  // const backendURL = "http://localhost:3000/api/v1/";
-  const backendURL = "https://softbook-backend.onrender.com/api/v1/";
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -51,7 +50,7 @@ const ContextProvider = (props) => {
         () => {
           setLat(null);
           setLng(null);
-        }
+        },
       );
     }
   }, []);
